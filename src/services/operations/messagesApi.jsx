@@ -26,24 +26,28 @@ export const getAllMessages = async (user2, token) => {
     }
 }
 
-export const sendFileMessage = async (file, user2) => {
-    const { token } = useSelector((state) => state.auth);
+export const sendFileMessage = async (formData, token) => {
     try {
-        console.log(file)
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('receiver', user2);
+        // console.log("hello world")
+        // console.log(token)
+        // const formData = new FormData();
+        // formData.append('file', file);
+        // formData.append('receiver', user2);
+        // console.log(...formData)
         const response = await apiConnector(
             'POST',
             UPLOAD_FILE,
             formData,
-            { Authorization: `Bearer ${token}` }
+            {
+                "Content-Type": "multipart/form-data",
+                'Authorization': `Bearer ${token}`,
+              }
         )
         const { data } = response;
-        console.log("SEND FILE MESSAGE API RESPONSE............", response);
+        // console.log("SEND FILE MESSAGE API RESPONSE............", response);
         if (!data.success)
             throw new Error(data.message)
-        return data.message
+        return data.data
     } catch (error) {
         console.log("SEND FILE MESSAGE API ERROR............", error);
     }

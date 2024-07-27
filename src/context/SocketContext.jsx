@@ -1,9 +1,9 @@
-const BASE_URL = import.meta.env.VITE_BACKEND_URL
-
 import React, { createContext, useContext, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addMessage } from "../slices/chatSlice";
+import { addMessage, setDmContacts } from "../slices/chatSlice";
 import io from "socket.io-client";
+
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const socketContext = createContext(null);
 
@@ -11,11 +11,11 @@ export const useSocket = () => {
     return useContext(socketContext);
 }
 
-export const SocketProvider = ({ children }) => {
+export const SocketProvider= ({ children }) => {
     const dispatch = useDispatch();
     const socket = useRef(null);
-    const { user } = useSelector(state => state.profile);
-    const { selectChatData, selectChatType } = useSelector(state => state.chat);
+    const { user } = useSelector((state) => state.profile);
+    const { selectChatData, selectChatType } = useSelector((state) => state.chat);
 
     useEffect(() => {
         if (user) {
@@ -25,14 +25,17 @@ export const SocketProvider = ({ children }) => {
             });
 
             socket.current.on("connect", () => {
-                console.log("connected to socket server");
+                console.log("Connected to socket server");
             });
 
-            socket.current.on("receive-message", message => {               
-                if (selectChatType != null &&
-                    (selectChatData?._id === message?.sender?._id ||
-                        selectChatData?._id === message?.receiver?._id)) {
+            socket.current.on("receive-message", (message) => {
+                // console.log("Received message:", message);
+
+                if (selectChatType && (selectChatData?._id === message?.sender?._id || selectChatData?._id === message?.receiver?._id)) {
                     dispatch(addMessage(message));
+
+                    const contact = selectChatData?._id === message?.sender?._id ? message?.sender : message?.receiver;
+                    dispatch(setDmContacts(contact));
                 }
             });
 

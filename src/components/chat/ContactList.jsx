@@ -6,7 +6,8 @@ import { setSelectChatData, setSelectChatType, setSelectChatMessages } from '@/s
 
 const ContactList = ({ contacts, isChannel }) => {
     // console.log("contacts", contacts);
-    const { selectChatData, selectChatType } = useSelector((state) => state.chat);
+
+    const { selectChatData, selectChatType, dmContacts } = useSelector((state) => state.chat);
     const dispatch = useDispatch();
     const handleClick = (contact) => {
         dispatch(setSelectChatType(isChannel ? "channel" : "contact"));
@@ -18,7 +19,7 @@ const ContactList = ({ contacts, isChannel }) => {
             <div
                 key={contact._id}
                 onClick={() => handleClick(contact)}
-                className={` cursor-pointer ${selectChatData?._id === contact._id ? 'bg-[#8417ff] text-[#8417ff]' : 'hover:bg-[#f1f1f111] hover:text-[#f1f1f111]'} transition-all duration-300`}>
+                className={`my-1 cursor-pointer ${selectChatData?._id === contact._id ? 'bg-[#8417ff] text-[#8417ff]' : 'hover:bg-[#f1f1f111] hover:text-[#f1f1f111]'} transition-all duration-300`}>
                 {/* <img src={contact.profilePic} alt='profile' className='w-10 h-10 rounded-full' /> */}
                 {/* <div className='ml-4'>
                     <div className='text-white'>{contact.username}</div>

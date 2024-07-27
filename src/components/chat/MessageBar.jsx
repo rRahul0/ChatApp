@@ -3,15 +3,15 @@ import { GrAttachment } from 'react-icons/gr';
 import { IoSend } from 'react-icons/io5';
 import { RiEmojiStickerLine } from 'react-icons/ri';
 import { useSelector } from 'react-redux';
-
 import EmojiPicker from 'emoji-picker-react';
 import useOnClickOutside from '@/hooks/useOnClickOutside';
-import { sendFileMessage } from '../../services/operations/messagesApi';
+import { sendFileMessage as sendFile } from '../../services/operations/messagesApi';
 import { useSocket } from '../../context/SocketContext';
 
 const MessageBar = () => {
     const socket = useSocket();
     const { user } = useSelector(state => state.profile);
+    const { token } = useSelector(state => state.auth);
     const { selectChatType, selectChatData } = useSelector(state => state.chat);
     const [message, setMessage] = useState("");
     const emojiRef = useRef(null);
@@ -24,7 +24,6 @@ const MessageBar = () => {
             content: message,
             receiver: selectChatData._id,
             messageType: "text",
-            fileUrl: { url: undefined, public_id: undefined }
         } : {
             receiver: selectChatData._id,
             message,
@@ -44,27 +43,33 @@ const MessageBar = () => {
             fileInputRef.current.click();
         }
     };
-    async function sendFileMessage(file, receiver) {
+
+    async function uploadFile(file, receiver) {
         try {
-            const response = await sendFileMessage(file, receiver);
-            // if (selectChatType === "contact") {
-                // socket.emit("send-message", {
-                //     sender: user._id,
-                //     content: undefined,
-                //     receiver: selectChatData._id,
-                //     messageType: "file",
-                //     // fileUrl: { url: response.data.filepath, public_id: undefined }
-                // });
-                // console.log(response);
-            // }
-            console.log(response);
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('receiver', receiver);
+
+            const response = await sendFile(formData, token);
+            // console.log(response);
+            if (selectChatType === "contact") {
+            socket.emit("send-message", {
+                sender: user._id,
+                receiver: selectChatData._id,
+                messageType: "file",
+                fileUrl: {name:response.fileUrl.name ,url: response.fileUrl.url, public_id: response.fileUrl.public_id }
+            });
+            }
+            // console.log(response);
         } catch (error) {
             console.error('Error uploading file:', error);
-        }}
-    const handleFileChange =async (e) => {
+        }
+    }
+
+    const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            await sendFileMessage(file, selectChatData._id);
+            await uploadFile(file, selectChatData._id);
         }
     };
 

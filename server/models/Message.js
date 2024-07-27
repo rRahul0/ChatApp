@@ -23,6 +23,12 @@ const messageSchema = new mongoose.Schema({
         },
     },
     fileUrl: {
+        name: {
+            type: String,
+            required: function () {
+                return this.messageType === "file";
+            },
+        },
         url: {
             type: String,
             required: function () {
