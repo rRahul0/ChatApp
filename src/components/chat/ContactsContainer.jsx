@@ -16,6 +16,7 @@ const ContactsContainer = () => {
         const fetchUsers = async () => {
             try {
                 const fetchedUsers = await AllContactsDm(token);
+                // console.log("Fetched users", fetchedUsers);
                 dispatch(setDmContacts(fetchedUsers));
             } catch (error) {
                 console.error("Failed to fetch users", error);

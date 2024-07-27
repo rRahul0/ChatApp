@@ -24,7 +24,6 @@ export const searchContacts = async (req, res) => {
 export const getContactsDM = async (req, res) => {
     try {
         const userId = req.user.id;
-
         // Ensure userId is a valid ObjectId
         const userObjectId = new mongoose.Types.ObjectId(userId);
 

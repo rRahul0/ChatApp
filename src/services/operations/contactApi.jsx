@@ -31,16 +31,17 @@ export async function AllContactsDm(token){
     const { GET_CONTACTS_DM } = ContactEndpoints;
     try {
         const response = await apiConnector(
-            "GET",
+            "POST",
             GET_CONTACTS_DM,
             {},
             { Authorization: `Bearer ${token}` }
         );
+        // console.log(response)
         if (!response.data.success) {
             throw new Error(response.data.message);
         }
         const { users } = response.data;
-        // console.log("GET CONTACTS DM API RESPONSE............", response);
+        // console.log("GET CONTACTS DM API RESPONSE............", users);
         return users;
     } catch (error) {
         console.log("GET CONTACTS DM API ERROR............", error);
