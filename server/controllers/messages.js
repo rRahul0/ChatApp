@@ -14,7 +14,7 @@ export const getMessages = async (req, res) => {
                 { sender: user2, receiver: user1 },
             ],
         }).sort({ timestamp: 1 })
-        return res.status(200).json({messages , success: true, message: "messages fetched successfully" })
+        return res.status(200).json({ messages, success: true, message: "messages fetched successfully" })
     } catch (error) {
         return res.status(500).json({ success: false, message: "something went wrong while fetching messages" })
     }
@@ -22,28 +22,37 @@ export const getMessages = async (req, res) => {
 
 export const uploadFile = async (req, res) => {
     try {
+        // const { file, receiver } = req.body
+        const file = req.files.file
         const { receiver } = req.body
-        console.log(req.file)
-        const file = req.file
+
+        if (!receiver)
+            return res.status(400).json({ success: false, message: "receiver not found" })
         if (!file)
             return res.status(400).json({ success: false, message: "file not found" })
+
         //upload in cloudinary
         const uploadedFile = await uploadFileToCloudinary(
-            file,
+            file.tempFilePath,
             process.env.FOLDER_NAME,
-          );
-        // const message = new Message({
-        //     sender: req.user.id,
-        //     receiver,
-        //     message: uploadedFile.secure_url,
-        //     timestamp: new Date(),
-        //     type: "file"
-        // })
-        // await message.save()
-
-        console.log(uploadedFile)
-        return res.status(201).json({ success: true, message: "message sent successfully" })
+        );
+        // console.log(file)
+        const message = new Message({
+            sender: req.user.id,
+            receiver,
+            messageType: "file",
+            fileUrl: {
+                    name: file.name,
+                url: uploadedFile.secure_url,
+                public_id: uploadedFile.public_id,
+            },
+            timestamp: new Date(),
+        })
+        await message.save()
+        // console.log(message)
+        return res.status(201).json({ success: true, data: message, message: "message sent successfully" })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ success: false, message: "something went wrong while sending message" })
     }
 }

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import fileUpload from 'express-fileupload';
 
 import setupSocket from './socket.js';
 import authRoute from './routes/authRoute.js';
@@ -24,9 +25,11 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true}));
+app.use( fileUpload({ useTempFiles: true, tempFileDir: "/tmp",}));
 
 dbConnect();
-cloudinaryConnect()
+cloudinaryConnect();
 
 app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/contacts', contactsRoute);
@@ -39,4 +42,5 @@ app.get('/', (req, res) => {
 const server = app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
 });
+
 setupSocket(server);
