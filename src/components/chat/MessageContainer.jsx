@@ -35,7 +35,7 @@ const MessageContainer = () => {
         };
 
         fetchMessages();
-    }, [selectChatData, selectChatType, token, dispatch]);
+    }, [selectChatData, selectChatType]);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -129,6 +129,7 @@ const MessageContainer = () => {
 
     const renderMessages = () => {
         let lastDate = null;
+        // console.log(selectChatMessages);
         return selectChatMessages.map((message) => {
             const date = moment(message.timestamp).format("YYYY-MM-DD");
             const showDate = date !== lastDate;

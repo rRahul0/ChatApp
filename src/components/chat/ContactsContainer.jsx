@@ -5,6 +5,8 @@ import { useSelector, useDispatch } from "react-redux";
 import ContactList from "./ContactList";
 import { useEffect } from "react";
 import { AllContactsDm } from "../../services/operations/contactApi";
+import CreateChannel from "./CreateChannel";
+
 
 const ContactsContainer = () => {
     const { dmContacts } = useSelector((state) => state.chat);
@@ -42,6 +44,7 @@ const ContactsContainer = () => {
                 <div className="my-5">
                     <div className="flex items-center justify-between pr-10">
                         <Title title="Channels" />
+                        <CreateChannel />
                     </div>
                 </div>
             </div>

@@ -11,7 +11,7 @@ export const useSocket = () => {
     return useContext(socketContext);
 }
 
-export const SocketProvider= ({ children }) => {
+export const SocketProvider = ({ children }) => {
     const dispatch = useDispatch();
     const socket = useRef(null);
     const { user } = useSelector((state) => state.profile);
@@ -31,12 +31,10 @@ export const SocketProvider= ({ children }) => {
             socket.current.on("receive-message", (message) => {
                 // console.log("Received message:", message);
 
-                if (selectChatType && (selectChatData?._id === message?.sender?._id || selectChatData?._id === message?.receiver?._id)) {
+                if (selectChatType && (selectChatData?._id === message?.sender?._id || selectChatData?._id === message?.receiver?._id))
                     dispatch(addMessage(message));
-
-                    const contact = selectChatData?._id === message?.sender?._id ? message?.sender : message?.receiver;
-                    dispatch(setDmContacts(contact));
-                }
+                const contact = selectChatData?._id === message?.sender?._id ? message?.sender : message?.receiver;
+                dispatch(setDmContacts(contact));
             });
 
             return () => {

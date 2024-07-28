@@ -47,18 +47,14 @@ const MessageBar = () => {
     async function uploadFile(file, receiver) {
         try {
             const formData = new FormData();
+            if(!file) return;
             formData.append('file', file);
             formData.append('receiver', receiver);
 
             const response = await sendFile(formData, token);
             // console.log(response);
             if (selectChatType === "contact") {
-            socket.emit("send-message", {
-                sender: user._id,
-                receiver: selectChatData._id,
-                messageType: "file",
-                fileUrl: {name:response.fileUrl.name ,url: response.fileUrl.url, public_id: response.fileUrl.public_id }
-            });
+            socket.emit("send-message", response);
             }
             // console.log(response);
         } catch (error) {
@@ -68,9 +64,8 @@ const MessageBar = () => {
 
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
-        if (file) {
             await uploadFile(file, selectChatData._id);
-        }
+            
     };
 
     useOnClickOutside(emojiRef, () => setEmojiPickerOpen(false));

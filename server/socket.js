@@ -2,10 +2,6 @@ import Message from './models/Message.js';
 import { Server } from 'socket.io';
 
 
-
-
-
-
 const setupSocket = (server) => {
     const io = new Server(
         server, {
@@ -27,11 +23,23 @@ const setupSocket = (server) => {
         }
     }
     const sendMessage = async (message) => {
-        const senderSocketId = userSocketMap.get(message.sender);
-        const receiverSocketId = userSocketMap.get(message.receiver);
-        const createMessage = (await Message.create(message));
-        let messageData = await createMessage.populate('sender', "id email firstName lastName image")
-        messageData = await createMessage.populate('receiver', "id email firstName lastName image")
+
+
+        let createMessage, messageData, senderSocketId, receiverSocketId;
+        if (message.messageType === "file") {
+            senderSocketId = userSocketMap.get(message.sender._id);
+            receiverSocketId = userSocketMap.get(message.receiver._id);
+            messageData = message;
+            // console.log(messageData)
+        } else {
+            senderSocketId = userSocketMap.get(message.sender);
+            receiverSocketId = userSocketMap.get(message.receiver);
+            createMessage = (await Message.create(message));
+            messageData = await createMessage.populate('sender', "id email firstName lastName image")
+            messageData = await createMessage.populate('receiver', "id email firstName lastName image")
+            // console.log(messageData)
+        }
+
         if (receiverSocketId) {
             io.to(receiverSocketId).emit('receive-message', messageData);
         }
