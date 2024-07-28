@@ -37,18 +37,19 @@ export const uploadFile = async (req, res) => {
             process.env.FOLDER_NAME,
         );
         // console.log(file)
-        const message = new Message({
+        let message = await Message.create({
             sender: req.user.id,
             receiver,
             messageType: "file",
             fileUrl: {
-                    name: file.name,
+                name: file.name,
                 url: uploadedFile.secure_url,
                 public_id: uploadedFile.public_id,
             },
             timestamp: new Date(),
         })
-        await message.save()
+        message =await message.populate('receiver', "id email firstName lastName image")
+        message =await message.populate('sender', "id email firstName lastName image")
         // console.log(message)
         return res.status(201).json({ success: true, data: message, message: "message sent successfully" })
     } catch (error) {
