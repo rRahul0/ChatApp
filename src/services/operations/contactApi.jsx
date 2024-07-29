@@ -47,3 +47,25 @@ export async function AllContactsDm(token){
         console.log("GET CONTACTS DM API ERROR............", error);
     }
 }
+
+export async function AllContacts(token){
+    // const { token } = useSelector((state) => state.auth);
+    const { GET_ALL_CONTACTS } = ContactEndpoints;
+    try {
+        const response = await apiConnector(
+            "GET",
+            GET_ALL_CONTACTS,
+            {},
+            { Authorization: `Bearer ${token}` }
+        );
+        // console.log(response)
+        if (!response.data.success) {
+            throw new Error(response.data.message);
+        }
+        const { contacts } = response.data;
+        // console.log("GET ALL CONTACTS API RESPONSE............", contacts);
+        return contacts;
+    } catch (error) {
+        console.log("GET ALL CONTACTS API ERROR............", error);
+    }
+}

@@ -1,17 +1,16 @@
 import NewDm from "./NewDm";
 import ProfileInfo from "./ProfileInfo";
-import { setDmContacts } from "../../slices/chatSlice";
+import { setDmContacts, setChannels } from "../../slices/chatSlice";
 import { useSelector, useDispatch } from "react-redux";
 import ContactList from "./ContactList";
 import { useEffect } from "react";
-import { AllContactsDm } from "../../services/operations/contactApi";
+import { AllContactsDm, AllContacts } from "../../services/operations/contactApi";
 import CreateChannel from "./CreateChannel";
-
+import { getChannels } from "../../services/operations/channelApi";
 
 const ContactsContainer = () => {
-    const { dmContacts } = useSelector((state) => state.chat);
+    const { dmContacts, channels } = useSelector((state) => state.chat);
     const { token } = useSelector((state) => state.auth);
-
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -24,8 +23,17 @@ const ContactsContainer = () => {
                 console.error("Failed to fetch users", error);
             }
         };
-
+        const fetchChannels = async () => {
+            try {
+                const fetchedChannels = await getChannels(token);
+                // console.log("Fetched Channels", fetchedChannels);
+                dispatch(setChannels(fetchedChannels));
+            } catch (error) {
+                console.error("Failed to fetch users", error);
+            }
+        };
         fetchUsers();
+        fetchChannels();
     }, []); // Only re-run if dispatch changes
 
     return (
@@ -45,6 +53,9 @@ const ContactsContainer = () => {
                     <div className="flex items-center justify-between pr-10">
                         <Title title="Channels" />
                         <CreateChannel />
+                    </div>
+                    <div className="max-h-[38vh] overflow-y-auto scrollbar-hidden">
+                        <ContactList contacts={channels} isChannel={true} />
                     </div>
                 </div>
             </div>

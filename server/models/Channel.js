@@ -17,6 +17,10 @@ const channelSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
+    image: {
+        url:{ type: String, required: true},
+        public_id:{ type: String}
+    },
     messages: [
         {
             type: mongoose.Schema.Types.ObjectId,

@@ -22,6 +22,7 @@ const ChatHeader = () => {
                             selectChatData.firstName ?
                             (`${selectChatData.firstName} ${selectChatData.lastName}`)
                             : selectChatData.email}
+                        { selectChatType === 'channel' && `${selectChatData.name}` }
                     </div>
                 </div>
                 <div className="flex items-center justify-center gap-5 ">

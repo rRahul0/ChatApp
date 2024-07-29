@@ -26,7 +26,7 @@ const ContactList = ({ contacts, isChannel }) => {
                     <div className='text-neutral-400 text-sm'>{contact.email}</div>
                 </div> */}
                 <div className={`flex py-2 pl-10 gap-5 items-center justify-start text-neutral-300 
-                    ${selectChatData?._id === contact._id ? ' bg-[#8417ff]' : 'bg-[#2a2b33]'}
+                    ${selectChatData?._id === contact?._id ? ' bg-[#8417ff]' : 'bg-[#2a2b33]'}
                     `}>
                     {
                         !isChannel &&
@@ -39,11 +39,19 @@ const ContactList = ({ contacts, isChannel }) => {
                                 </div>
                             </div>
                         )
+                        
                     }{
-                        isChannel && <div className='w-10 h-10 rounded-full bg-[#2f303b] flex items-center justify-center'>
-                            {isChannel ?
-                                <span>#{contact.name}</span> : <span>{contact.firstName} {contact.lastName}</span>
-                            }
+                        isChannel &&
+                        <div className='flex'>
+                            <div className='w-10 h-10 rounded-full bg-[#2f303b] flex items-center justify-center'>
+                                <span>#</span>
+                            </div>
+
+                            <div className='flex '>
+                                <div className='ml-4 flex items-center'>
+                                    <div className='text-white text-lg font-semibold'>{contact.name || "Channel"}</div>
+                                </div>
+                            </div>
                         </div>
                     }
                 </div>
