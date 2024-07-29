@@ -1,5 +1,4 @@
 import { apiConnector } from "../apiConnector";
-import { useSelector } from "react-redux"
 import { MessageEndpoints } from "../apis";
 
 const { GET_MESSAGES, UPLOAD_FILE } = MessageEndpoints
@@ -17,7 +16,7 @@ export const getAllMessages = async (user2, token) => {
         if (!data.success)
             throw new Error(data.message)
 
-        // console.log("GET MESSAGES API RESPONSE............", response);
+        console.log("GET MESSAGES API RESPONSE............", response);
 
         return data.messages
     } catch (error) {

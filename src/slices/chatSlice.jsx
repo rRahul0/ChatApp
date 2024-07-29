@@ -5,6 +5,7 @@ const initialState = {
     selectChatData: undefined,
     selectChatMessages: [],
     dmContacts: [],
+    channels: [],
 }
 
 const chatSlice = createSlice({
@@ -35,14 +36,14 @@ const chatSlice = createSlice({
         },
         // addMessage(state, action) {
         //     const message = action.payload;
-            
+
         //     // Create a new message object with the required fields
         //     const newMessage = {
         //         ...message,
         //         receiver: state.selectChatType === "channel" ? message.receiver : message.receiver._id,
         //         sender: state.selectChatType === "channel" ? message.sender : message.sender._id,
         //     };
-            
+
         //     // Check if the message already exists in the state
         //     const messageExists = state.selectChatMessages.some(existingMessage => 
         //         existingMessage._id === message._id // Assuming _id is the unique identifier
@@ -50,7 +51,7 @@ const chatSlice = createSlice({
         //             existingMessage.receiver === newMessage.receiver && 
         //             existingMessage.timestamp === newMessage.timestamp) // Adjust based on your message structure
         //     );
-            
+
         //     // If the message does not exist, push it to the state
         //     if (!messageExists) {
         //         state.selectChatMessages.push(newMessage);
@@ -59,17 +60,34 @@ const chatSlice = createSlice({
         setDmContacts(state, action) {
             const newContacts = Array.isArray(action.payload) ? action.payload : [action.payload];
             const contactMap = new Map(state.dmContacts.map(contact => [contact._id, contact]));
-            
+
             newContacts.forEach(contact => {
                 contactMap.set(contact._id, contact);
             });
 
-            state.dmContacts = Array.from(contactMap.values()).sort(
-                (a, b) => (b.lastMessageTimestamp || 0) - (a.lastMessageTimestamp || 0)
-            );
+            state.dmContacts = Array.from(contactMap.values()).sort()
+            // sort(
+            //     (a, b) => (b.lastMessageTimestamp || 0) - (a.lastMessageTimestamp || 0)
+            // );
         },
+        setChannels(state, value) {
+            state.channels = value.payload
+        },
+        addChannel(state, value){
+            const channels= state.channels
+            state.channels = [value.payload, ...channels]
+        }
     }
 });
 
-export const { setSelectChatType, setSelectChatData, setSelectChatMessages, closeChat, addMessage, setDmContacts } = chatSlice.actions;
+export const {
+    setSelectChatType,
+    setSelectChatData,
+    setSelectChatMessages,
+    closeChat,
+    addMessage,
+    setDmContacts,
+    setChannels,
+    addChannel
+} = chatSlice.actions;
 export default chatSlice.reducer;

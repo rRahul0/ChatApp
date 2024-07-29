@@ -2,7 +2,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect, useRef } from "react";
 import moment from "moment";
 import fileDownload from "js-file-download";
-import { setSelectChatMessages } from "@/slices/chatSlice";
+import { setSelectChatMessages } from "../../slices/chatSlice";
 import { getAllMessages } from "../../services/operations/messagesApi";
 import { ImFolderOpen } from "react-icons/im";
 import { IoMdDownload } from "react-icons/io";
@@ -130,6 +130,8 @@ const MessageContainer = () => {
     const renderMessages = () => {
         let lastDate = null;
         // console.log(selectChatMessages);
+        // console.log(typeof new Date().getDate())
+        // const time = new Date().getDate()
         return selectChatMessages.map((message) => {
             const date = moment(message.timestamp).format("YYYY-MM-DD");
             const showDate = date !== lastDate;
@@ -138,7 +140,9 @@ const MessageContainer = () => {
                 <div key={message._id}>
                     {showDate && (
                         <div className="text-center text-gray-500 my-2">
-                            {moment(message.timestamp).format('LL')}
+                            {/* {console.log(time===Number(message.timestamp.split('T')[0].split("-")[2]))} */}
+                            {/* {time == message.timestamp.split('T')[0].split("-")[2] ? "": moment(message.timestamp).format('LL')} */}
+                            {moment(message.timestamp).format("LL")}
                         </div>
                     )}
                     {selectChatType === "contact" && renderContactMessage(message)}

@@ -21,6 +21,7 @@
     "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "cmdk": "^1.0.0",
     "concurrently": "^8.2.2",
     "emoji-picker-react": "^4.11.1",
     "js-file-download": "^0.4.12",
