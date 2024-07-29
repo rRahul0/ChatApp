@@ -71,7 +71,7 @@ const MessageBar = () => {
     useOnClickOutside(emojiRef, () => setEmojiPickerOpen(false));
 
     return (
-        <div className="max-sm:w-full w-[90%] h-[10vh] bg-[#1c1d25] flex justify-center items-center mx-auto mb-6 sm:gap-6 gap-3 px-2 sm:px-5">
+        <div className="max-sm:w-full w-[90%] h-[10vh] bg-[#1c1d25] flex justify-center items-center mx-auto mb-6 sm:gap-6 gap-1 px-[6px] sm:px-5">
             <div className="max-sm:w-[82%] flex-1 flex bg-[#2a2b33] items-center gap-1 sm:gap-5 pr-5 rounded-md">
                 <input
                     type="text"
