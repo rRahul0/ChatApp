@@ -71,20 +71,22 @@ const MessageBar = () => {
     useOnClickOutside(emojiRef, () => setEmojiPickerOpen(false));
 
     return (
-        <div className="w-[60%] sm:w-[80%] h-[10vh] bg-[#1c1d25] flex justify-center items-center mx-auto mb-6 sm:gap-6 gap-3">
-            <div className="flex-1 flex bg-[#2a2b33] items-center gap-5 pr-5 rounded-md">
+        <div className="max-sm:w-full w-[90%] h-[10vh] bg-[#1c1d25] flex justify-center items-center mx-auto mb-6 sm:gap-6 gap-3 px-2 sm:px-5">
+            <div className="max-sm:w-[80%] flex-1 flex bg-[#2a2b33] items-center gap-5 pr-5 rounded-md">
                 <input
                     type="text"
                     placeholder="Type a message"
-                    className="flex-1 p-5 bg-transparent focus:border-none focus:outline-none"
+                    className="flex-1 p-3 sm:p-5 bg-transparent focus:border-none focus:outline-none"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                 />
                 <button
                     onClick={handleFileUpload}
-                    className="text-neutral-100 focus:border-none focus:outline-none focus:text-white duration-300 transition-all">
+                    className="text-neutral-100 focus:border-none focus:outline-none focus:text-white duration-300 transition-all ">
                     <GrAttachment className="text-2xl text-neutral-500" />
                 </button>
+                <div>
+
                 <input
                     ref={fileInputRef}
                     type="file"
@@ -108,9 +110,11 @@ const MessageBar = () => {
                         </div>
                     )}
                 </div>
+                </div>
+
             </div>
             <button
-                className="bg-[#8417ff] rounded-full flex items-center justify-center p-5 hover:bg-[#741bda] focus:bg-[#741bda] focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
+                className="max-sm:max-w-[20%] bg-[#8417ff] rounded-full flex items-center justify-center p-3 sm:p-5 hover:bg-[#741bda] focus:bg-[#741bda] focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
                 onClick={handleSendMessage}
             >
                 <IoSend className="text-2xl text-neutral-300" />
