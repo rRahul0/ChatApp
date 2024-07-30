@@ -32,8 +32,9 @@ export const SocketProvider = ({ children }) => {
                 // console.log("Received message:", message);
                 if (selectChatType && (selectChatData?._id === message?.sender?._id || selectChatData?._id === message?.receiver?._id))
                     dispatch(addMessage(message));
-                const contact = selectChatData?._id === message?.sender?._id ? message?.sender : message?.receiver;
-                dispatch(setDmContacts(contact));
+                const contact = user?._id === message?.receiver?._id ? message?.sender : message?.receiver;
+                if (contact) dispatch(setDmContacts(contact));
+                // dispatch(setDmContacts(contact));
             });
             socket.current.on("receive-channel", (channel) => {
                 console.log("Received channel:", channel);

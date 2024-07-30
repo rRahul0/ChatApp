@@ -19,19 +19,32 @@ const MessageBar = () => {
     const fileInputRef = useRef(null);
 
     const handleSendMessage = async () => {
-        const messagePayload = selectChatType === "contact" ? {
-            sender: user._id,
-            content: message,
-            receiver: selectChatData._id,
-            messageType: "text",
-        } : {
-            receiver: selectChatData._id,
-            message,
-            channel: selectChatData._id
-        };
-
-        socket.emit("send-message", messagePayload);
-        setMessage("");
+        let messagePayload
+        // = selectChatType === "contact" ? : {
+        //     receiver: selectChatData._id,
+        //     message,
+        //     channel: selectChatData._id
+        // };
+        if (selectChatType === "contact") {
+            messagePayload = {
+                sender: user._id,
+                content: message,
+                receiver: selectChatData._id,
+                messageType: "text",
+            }
+            socket.emit("send-message", messagePayload);
+            setMessage("");
+        } else {
+            messagePayload = {
+                sender: user._id,
+                content: message,
+                // receiver: selectChatData._id,
+                messageType: "text",
+                channelId: selectChatData._id
+            }
+            socket.emit("send-channel-message", messagePayload);
+            setMessage("");
+        }
     };
 
     const handleAddEmoji = (e) => {
@@ -49,12 +62,15 @@ const MessageBar = () => {
             const formData = new FormData();
             if (!file) return;
             formData.append('file', file);
-            formData.append('receiver', receiver);
 
-            const response = await sendFile(formData, token);
             // console.log(response);
             if (selectChatType === "contact") {
+                formData.append('receiver', receiver);
+                const response = await sendFile(formData, token);
                 socket.emit("send-message", response);
+            } else {
+                //here also we need to send the channel id
+                socket.emit("send-channel-message", response);
             }
             // console.log(response);
         } catch (error) {
