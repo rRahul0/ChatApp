@@ -36,10 +36,17 @@ export const SocketProvider = ({ children }) => {
                 if (contact) dispatch(setDmContacts(contact));
                 // dispatch(setDmContacts(contact));
             });
+            socket.current.on("receive-channel-message", (message) => {
+                if (selectChatType && (selectChatData?._id === message?.channelId))
+                    dispatch(addMessage(message));
+                // const contact = user?._id === message?.receiver?._id ? message?.sender : message?.receiver;
+                // if (contact) dispatch(setDmContacts(contact));
+            });
             socket.current.on("receive-channel", (channel) => {
                 console.log("Received channel:", channel);
                 dispatch(setChannels(channel));
             });
+
             return () => {
                 if (socket.current) {
                     socket.current.disconnect();

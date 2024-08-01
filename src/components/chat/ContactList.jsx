@@ -5,7 +5,7 @@ import { setSelectChatData, setSelectChatType, setSelectChatMessages } from '@/s
 
 
 const ContactList = ({ contacts, isChannel }) => {
-    // console.log("contacts", contacts);
+    // console.log("contacts", contacts[0]);
 
     const { selectChatData, selectChatType, dmContacts } = useSelector((state) => state.chat);
     const dispatch = useDispatch();
@@ -32,7 +32,7 @@ const ContactList = ({ contacts, isChannel }) => {
                         !isChannel &&
                         (
                             <div className='flex '>
-                                <img src={contact.image.url} alt='profile' className='w-10 h-10 rounded-full border-2' />
+                                <img src={contact?.image?.url} alt='profile' className='w-10 h-10 rounded-full border-2' />
                                 <div className='ml-4 flex items-center'>
                                     <div className='text-white text-lg font-semibold'>{contact.firstName} {contact.lastName}</div>
                                     {/* <div className='text-neutral-400 text-sm'>{contact.email}</div> */}

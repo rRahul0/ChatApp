@@ -12,6 +12,7 @@
     "dev": "concurrently -n \"client,server\" -c \"bgBlue,bgGreen\" \"npm start\" \"npm run server\""
   },
   "dependencies": {
+    "@radix-ui/react-avatar": "^1.1.0",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-scroll-area": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
