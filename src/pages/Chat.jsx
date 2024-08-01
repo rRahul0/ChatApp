@@ -10,7 +10,6 @@ const Chat = () => {
         <div className="flex h-[100vh] text-white overflow-hidden ">
             <ContactsContainer />
             {selectChatType === null ? <EmptyChatContainer /> : <ChatContainer />}
-            {/* <ChatContainer /> */}
         </div>
      );
 }
