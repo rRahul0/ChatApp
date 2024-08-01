@@ -48,7 +48,8 @@ const chatSlice = createSlice({
             // state.dmContacts = [action.payload, ...state.dmContacts]
         },
         setChannels(state, value) {
-            state.channels = value.payload
+            const sortedChannels = value.payload.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            state.channels = sortedChannels;
         },
         addChannel(state, value) {
             const channels = state.channels
