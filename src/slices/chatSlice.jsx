@@ -71,6 +71,7 @@ const chatSlice = createSlice({
               const [contact] = state.dmContacts.splice(index, 1);
               state.dmContacts.unshift(contact);
             } else {
+                console.log("dbhd")
               state.dmContacts.unshift(sender._id === userId ? receiver : sender);
             }
         }

@@ -35,7 +35,10 @@ export const SocketProvider = ({ children }) => {
                 contact.userId = user?._id
                 contact.sender = message?.sender
                 contact.receiver = message?.receiver
-                if (contact) dispatch(sortContacts(contact));
+                if (contact) {
+                    // dispatch(setDmContacts(contact));
+                    dispatch(sortContacts(contact));
+                }
             });
             socket.current.on("receive-channel-message", (message) => {
                 if (selectChatType && (selectChatData?._id === message?.channelId))
