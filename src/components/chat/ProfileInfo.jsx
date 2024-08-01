@@ -7,16 +7,21 @@ import { logout } from "../../services/operations/authApi";
 import toast from "react-hot-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
-import {Button} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import moment from "moment";
 
 
 
 const ProfileInfo = () => {
     const { user } = useSelector(state => state.profile);
+    const { dmContacts, channels } = useSelector(state => state.chat);
+    const friendsCount = dmContacts.length;
+    const group = channels.length;
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [openLogoutModal, setOpenLogoutModal] = useState(false);
     const [openEditProfileModal, setOpenEditProfileModal] = useState(false);
+    const [openProfileModal, setOpenProfileModal] = useState(false);
     const logOut = () => {
         dispatch(logout(navigate));
         setOpenLogoutModal(false);
@@ -26,7 +31,9 @@ const ProfileInfo = () => {
         <>
             <div className="absolutte bottom-0 h-16 flex items-center justify-between px-10 w-full bg-[#2a2b33] ">
                 <div className="flex gap-3 items-center justify-center ">
-                    <div className="w-12 h-12 relative text-white">
+                    <div 
+                    onClick={setOpenProfileModal}
+                    className="w-12 h-12 relative text-white cursor-pointer">
                         <img
                             src={user.image.url}
                             alt="mcnbhdf"
@@ -56,7 +63,7 @@ const ProfileInfo = () => {
                             <TooltipTrigger>
                                 <IoLogOut
                                     className="text-red-500 text-xl font-medium"
-                                    onClick={()=>setOpenLogoutModal(true)}
+                                    onClick={() => setOpenLogoutModal(true)}
                                 />
                             </TooltipTrigger>
                             <TooltipContent className="bg-[#1c1b1e] border-none text-white">
@@ -78,35 +85,88 @@ const ProfileInfo = () => {
                         </DialogDescription>
                     </DialogHeader>
                     <div className="flex justify-between max-sm:mt-7     sm:mt-2">
-                        <Button 
-                        className="bg-gray-800 rounded-md hover:scale-90 transition-all duration-300"
-                        onClick={()=>setOpenLogoutModal(false)}>Cancel</Button>
-                        <Button 
-                        className="bg-[#8417ff] rounded-md flex items-center justify-center hover:bg-[#741bda] hover:scale-90 transition-all duration-300"
-                        onClick={logOut}>Logout</Button>
+                        <Button
+                            className="bg-gray-800 rounded-md hover:scale-90 transition-all duration-300"
+                            onClick={() => setOpenLogoutModal(false)}>Cancel</Button>
+                        <Button
+                            className="bg-[#8417ff] rounded-md flex items-center justify-center hover:bg-[#741bda] hover:scale-90 transition-all duration-300"
+                            onClick={logOut}>Logout</Button>
                     </div>
-                    
+
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={openProfileModal} onOpenChange={setOpenProfileModal} >
+                {/* <DialogTrigger>Open</DialogTrigger> */}
+                <DialogContent className="max-sm:w-[70%] sm:max-w-fit bg-[#181920] border-none text-white flex flex-col px-12 py-7 rounded-lg">
+                    <DialogHeader className="flex flex-col gap-3">
+                        <DialogTitle className="text-3xl flex gap-1">
+                            Hello <p className="text-purple-500">{user?.firstName}</p>!
+                        </DialogTitle>
+                        {/* <DialogDescription>
+                        </DialogDescription> */}
+                    </DialogHeader>
+                    <div className="max-w-sm shadow-lg rounded-lg overflow-hidden mt-5 flex flex-col gap-5">
+                        <div className="flex justify-center">
+                            <img className="h-28 w-28 object-cover rounded-full " src={user.image.url} alt="Profile" />
+                        </div>
+                        <div className="p-6">
+                            <h2 className="text-2xl font-semibold text-gray-300">{`${user.firstName} ${user.lastName}`}</h2>
+                            <p className="text-gray-600">{user.email}</p>
+                            <div className="mt-4">
+                                <p className="text-gray-600">
+                                    <span className="font-bold">Joined:</span>
+                                    <span className="text-gray-300"> {moment(user.createdAt).format("LL")}</span>
+                                </p>
+                                <p className="text-gray-600">
+                                    <span className="font-bold">Friends:</span>
+                                    <span className="text-gray-300">  {friendsCount} </span>
+                                </p>
+                                <p className="text-gray-600">
+                                    <span className="font-bold">Group:</span>
+                                    <span className="text-gray-300">  {group} </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                 </DialogContent>
             </Dialog>
 
             <Dialog open={openEditProfileModal} onOpenChange={setOpenEditProfileModal} >
                 {/* <DialogTrigger>Open</DialogTrigger> */}
-                <DialogContent className="max-sm:w-[70%] sm:max-w-fit bg-[#181920] border-none text-white flex flex-col px-12 py-7 rounded-lg">
+                <DialogContent className="max-sm:w-[70%] bg-[#181920] border-none text-white flex flex-col px-12 py-7 rounded-lg">
                     <DialogHeader className="flex flex-col gap-3">
-                        <DialogTitle className="text-xl">Profile</DialogTitle>
-                        <DialogDescription>
-                            This is your profile page {user?.firstName}
-                        </DialogDescription>
+                        <DialogTitle className="text-3xl flex gap-1">
+                            Hello <p className="text-purple-500">{user?.firstName}</p>!
+                        </DialogTitle>
+                        {/* <DialogDescription>
+                        </DialogDescription> */}
                     </DialogHeader>
-                    {/* <div className="flex justify-between max-sm:mt-7     sm:mt-2">
-                        <Button 
-                        className="bg-gray-800 rounded-md hover:scale-90 transition-all duration-300"
-                        onClick={()=>setOpenLogoutModal(false)}>Cancel</Button>
-                        <Button 
-                        className="bg-[#8417ff] rounded-md flex items-center justify-center hover:bg-[#741bda] hover:scale-90 transition-all duration-300"
-                        onClick={logOut}>Logout</Button>
-                    </div> */}
-                    
+                    <div className="max-w-sm overflow-hidden mt-5 flex flex-col gap-5">
+                        <div className="flex justify-center">
+                            <img className="h-28 w-28 object-cover rounded-full " src={user.image.url} alt="Profile" />
+                        </div>
+                        <div className="p-6">
+                            <h2 className="text-2xl font-semibold text-gray-300">{`${user.firstName} ${user.lastName}`}</h2>
+                            <p className="text-gray-600">{user.email}</p>
+                            <div className="mt-4">
+                                <p className="text-gray-600">
+                                    <span className="font-bold">Joined:</span>
+                                    <span className="text-gray-300"> {moment(user.createdAt).format("LL")}</span>
+                                </p>
+                                <p className="text-gray-600">
+                                    <span className="font-bold">Friends:</span>
+                                    <span className="text-gray-300">  {friendsCount} </span>
+                                </p>
+                                <p className="text-gray-600">
+                                    <span className="font-bold">Group:</span>
+                                    <span className="text-gray-300">  {group} </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                 </DialogContent>
             </Dialog>
         </>
