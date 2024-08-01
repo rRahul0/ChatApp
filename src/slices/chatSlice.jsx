@@ -37,30 +37,6 @@ const chatSlice = createSlice({
                 sender: state.selectChatType === "channel" ? message.sender : message.sender._id,
             });
         },
-        
-        // addMessage(state, action) {
-        //     const message = action.payload;
-
-        //     // Create a new message object with the required fields
-        //     const newMessage = {
-        //         ...message,
-        //         receiver: state.selectChatType === "channel" ? message.receiver : message.receiver._id,
-        //         sender: state.selectChatType === "channel" ? message.sender : message.sender._id,
-        //     };
-
-        //     // Check if the message already exists in the state
-        //     const messageExists = state.selectChatMessages.some(existingMessage => 
-        //         existingMessage._id === message._id // Assuming _id is the unique identifier
-        //         || (existingMessage.sender === newMessage.sender && 
-        //             existingMessage.receiver === newMessage.receiver && 
-        //             existingMessage.timestamp === newMessage.timestamp) // Adjust based on your message structure
-        //     );
-
-        //     // If the message does not exist, push it to the state
-        //     if (!messageExists) {
-        //         state.selectChatMessages.push(newMessage);
-        //     }
-        // },
         setDmContacts(state, action) {
             const newContacts = action.payload
             //Array.isArray(action.payload) ? action.payload : [action.payload];
@@ -76,50 +52,28 @@ const chatSlice = createSlice({
         },
         addChannel(state, value) {
             const channels = state.channels
-            // const userId = value.payload.user._id
-            // const fromId =value.payload.message.sender._id===userId?
-            //  value.payload.message.receiver._id : value.payload.message.sender._id
-
-            //  const fromData = value.payload.message.sender._id===userId?
-            //  value.payload.message.receiver : value.payload.message.sender
-
-            // const contacts= state.dmContacts
-            const data = channels.find(channel => channel._id === value.payload._id)
-            // const index = contacts.indexOf(data)
+            const data = channels.find(channel => channel._id === value.payload.channelId)
             const index = channels.findIndex(channel => channel._id === value.payload.channelId)
-            console.log(index, data, channels)
-
             if (index !== -1 && index !== undefined) {
-                console.log("in if block")
                 channels.splice(index, 1)
                 channels.unshift(data)
             }
             state.channels = channels
         },
-        sortContacts(state, value) {
-            const userId = value.payload.user._id
-            const fromId = value.payload.message.sender._id === userId ?
-                value.payload.message.receiver._id : value.payload.message.sender._id
-
-            const fromData = value.payload.message.sender._id === userId ?
-                value.payload.message.receiver : value.payload.message.sender
-
-            const contacts = state.dmContacts
-            const data = contacts.find(contact => contact._id === fromId)
-            // const index = contacts.indexOf(data)
-            const index = contacts.findIndex(contact => contact._id === fromId)
-            console.log(index, data, fromData, fromId, userId)
-
-            if (index !== -1 && index !== undefined) {
-                console.log("in if block")
-                contacts.splice(index, 1)
-                contacts.unshift(data)
+        sortContacts(state, { payload }) {
+            const { userId, sender, receiver } = payload;
+            const fromId = sender._id === userId ? receiver._id : sender._id;
+                      
+            const index = state.dmContacts.findIndex(contact => contact._id === fromId);
+                      
+            if (index !== -1) {
+              const [contact] = state.dmContacts.splice(index, 1);
+              state.dmContacts.unshift(contact);
             } else {
-                console.log("in elsex block")
-                contacts.unshift(fromData)
+              state.dmContacts.unshift(sender._id === userId ? receiver : sender);
             }
-            state.dmContacts = contacts
         }
+          
     }
 });
 

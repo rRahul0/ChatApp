@@ -10,9 +10,18 @@ import { configureStore } from '@reduxjs/toolkit';
 import rootReducer from './reducer';
 import {SocketProvider} from './context/SocketContext.jsx'
 
+// const store = configureStore({
+//   reducer: rootReducer,
+// })
 const store = configureStore({
   reducer: rootReducer,
-})
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
+});
+
+
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(

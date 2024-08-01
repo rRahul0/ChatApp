@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addMessage, setDmContacts, addChannel, setChannels } from "../slices/chatSlice";
+import { addMessage, setDmContacts, addChannel, setChannels, sortContacts } from "../slices/chatSlice";
 import io from "socket.io-client";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -29,21 +29,20 @@ export const SocketProvider = ({ children }) => {
             });
 
             socket.current.on("receive-message", (message) => {
-                // console.log("Received message:", message);
                 if (selectChatType && (selectChatData?._id === message?.sender?._id || selectChatData?._id === message?.receiver?._id))
                     dispatch(addMessage(message));
                 const contact = user?._id === message?.receiver?._id ? message?.sender : message?.receiver;
-                if (contact) dispatch(setDmContacts(contact));
-                // dispatch(setDmContacts(contact));
+                contact.userId = user?._id
+                contact.sender = message?.sender
+                contact.receiver = message?.receiver
+                if (contact) dispatch(sortContacts(contact));
             });
             socket.current.on("receive-channel-message", (message) => {
                 if (selectChatType && (selectChatData?._id === message?.channelId))
                     dispatch(addMessage(message));
-                // const contact = user?._id === message?.receiver?._id ? message?.sender : message?.receiver;
-                // if (contact) dispatch(setDmContacts(contact));
+                    dispatch(addChannel(message));
             });
             socket.current.on("receive-channel", (channel) => {
-                console.log("Received channel:", channel);
                 dispatch(setChannels(channel));
             });
 
