@@ -20,11 +20,6 @@ const MessageBar = () => {
 
     const handleSendMessage = async () => {
         let messagePayload
-        // = selectChatType === "contact" ? : {
-        //     receiver: selectChatData._id,
-        //     message,
-        //     channel: selectChatData._id
-        // };
         if (selectChatType === "contact") {
             messagePayload = {
                 sender: user._id,
@@ -38,7 +33,6 @@ const MessageBar = () => {
             messagePayload = {
                 sender: user._id,
                 content: message,
-                // receiver: selectChatData._id,
                 messageType: "text",
                 channelId: selectChatData._id
             }
