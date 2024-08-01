@@ -57,12 +57,12 @@ const setupSocket = (server) => {
             name: channelName,
             members,
             admin,
-            image:{
-                url:`https://api.dicebear.com/5.x/initials/svg?seed=${channelName}`,
+            image: {
+                url: `https://api.dicebear.com/5.x/initials/svg?seed=${channelName}`,
                 public_id: null
             }
         }));
-        
+
         let channelData = await createChannel.populate('members admin')
         // channelData = await createChannel.populate('admin', "id email firstName lastName image")
         // console.log(channelData)
@@ -77,6 +77,34 @@ const setupSocket = (server) => {
             }
         }
     }
+    const sendChannelMessage = async (message) => {
+        const { messageType, sender, channelId, content } = message
+        let createMessage
+        if (messageType !== "file") {
+            createMessage = (await Message.create(message)); // This section may be updated
+        } else{
+            createMessage = message
+        }
+            // console.log(message)
+        const messageData = await Message.findById(createMessage._id).populate('sender', "id email firstName lastName image").exec();
+        // console.log(messageData)
+        await Channel.findByIdAndUpdate(channelId, { $push: { messages: createMessage._id } });
+        const channel = await Channel.findById(channelId).populate('members')
+        const finalData = { ...messageData._doc, channelId: channel._id }
+
+        if (channel && channel.members) {
+            channel.members.forEach(member => {
+                const memberSocketId = userSocketMap.get(member._id.toString());
+                if (memberSocketId) {
+                    io.to(memberSocketId).emit('receive-channel-message', finalData);
+                }
+            })
+            const adminSocketId = userSocketMap.get(channel.admin._id.toString());
+            if (adminSocketId) {
+                io.to(adminSocketId).emit('receive-channel-message', finalData);
+            }
+        }
+    }
     io.on('connection', (socket) => {
         const userId = socket.handshake.query.userId;
         if (userId) {
@@ -87,6 +115,7 @@ const setupSocket = (server) => {
         }
         socket.on('send-message', sendMessage);
         socket.on('create-channel', createChannel);
+        socket.on('send-channel-message', sendChannelMessage);
         socket.on('disconnect', () => disconnect(socket));
     });
 }

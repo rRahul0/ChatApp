@@ -62,14 +62,21 @@ const MessageBar = () => {
             const formData = new FormData();
             if (!file) return;
             formData.append('file', file);
+            formData.append('receiver', receiver);
 
             // console.log(response);
             if (selectChatType === "contact") {
-                formData.append('receiver', receiver);
                 const response = await sendFile(formData, token);
                 socket.emit("send-message", response);
             } else {
                 //here also we need to send the channel id
+                const response = await sendFile(formData, token);
+                // console.log(response);
+                response.channelId = selectChatData._id;
+                // response.sender = user._id;
+                response.messageType = "file";
+                response.receiver = selectChatData._id;
+                response.content = response.file;
                 socket.emit("send-channel-message", response);
             }
             // console.log(response);

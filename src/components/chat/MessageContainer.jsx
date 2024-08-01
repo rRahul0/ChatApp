@@ -3,11 +3,12 @@ import { useState, useEffect, useRef } from "react";
 import moment from "moment";
 import fileDownload from "js-file-download";
 import { setSelectChatMessages } from "../../slices/chatSlice";
-import { getAllMessages } from "../../services/operations/messagesApi";
+import { getAllMessages, getChannelMessages } from "../../services/operations/messagesApi";
 import { ImFolderOpen } from "react-icons/im";
 import { IoMdDownload } from "react-icons/io";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import '../scroll.css';
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 const MessageContainer = () => {
     const scrollRef = useRef(null);
@@ -22,7 +23,7 @@ const MessageContainer = () => {
         name: "",
         public_id: ""
     });
-    const handleOnChange = (data) => { setImage((prevData) => ({ ...prevData, ...data})) }
+    const handleOnChange = (data) => { setImage((prevData) => ({ ...prevData, ...data })) }
     useEffect(() => {
         const fetchMessages = async () => {
             if (selectChatData._id) {
@@ -33,8 +34,18 @@ const MessageContainer = () => {
                 }
             }
         };
-
-        fetchMessages();
+        const fetchChannelMessages = async () => {
+            if (selectChatData._id) {
+                const messages = await getChannelMessages(selectChatData._id, token);
+                // console.log(messages);
+                dispatch(setSelectChatMessages(messages));
+            }
+        };
+        if (selectChatType === "channel") {
+            fetchChannelMessages()
+        } else {
+            fetchMessages();
+        }
     }, [selectChatData, selectChatType]);
 
     useEffect(() => {
@@ -126,13 +137,87 @@ const MessageContainer = () => {
             </>
         );
     };
+    const renderChannelMessage = (message) => {
+        return (
+            // check user.id or user._id
+            <div className={`mt-5 ${message.sender._id !== user._id ? "text-left" : "text-right"}`}>
+                {message.messageType === "text" && (
+                    <div className={`${message.sender._id === user._id ?
+                        "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50" :
+                        "bg-[#2a2b33]/5 text-white/80 border-white/20"
+                        } border inline-block py-1 px-3 rounded my-1 max-w-[50%] break-words ml-9`}>
+                        {message.content}
+                    </div>
+                )}
+                {message.messageType === "file" && (
+                    <div className={`${message.sender._id === user._id ?
+                        "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50" :
+                        "bg-[#2a2b33]/5 text-white/80 border-white/20"
+                        } border inline-block py-1 px-3 rounded my-1 max-w-[60%] max-sm:max-w-[90%] break-words `}>
+                        {checkIfImage(message.fileUrl.url) ?
+                            <div className="cursor-pointer">
+                                <img src={message.fileUrl.url}
+                                    alt={message.fileUrl.name}
+                                    height={300}
+                                    width={300}
+                                    className="object-fit"
+                                    onClick={() => {
+                                        setShowImage(true);
+                                        handleOnChange(message.fileUrl)
+                                    }}
+                                />
+                            </div> :
+                            <div className="flex items-center justify-center gap-4 ">
+                                <span className="text-white/80 text-3xl bg-black/20 rounded-full p-3">
+                                    <ImFolderOpen />
+                                </span>
+                                <span>{
+                                    message.fileUrl.name.length > 20 ?
+                                        `${message.fileUrl.name.substring(0, 15)}   ...` : message.fileUrl.name
+                                }</span>
+                                <span
+                                    className="bg-black/20 p-3 text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
+                                    onClick={() => fileDownload(message.fileUrl.url, message.fileUrl.name)}
+                                >
+                                    <IoMdDownload />
+                                </span>
+                            </div>}
+                    </div>
+                )}
+                {message.sender._id !== user._id ? (
+                    <div className="flex items-center justify-start gap-3 text-xs text-gray-600">
+                        <Avatar className="w-6 h-6 object-cover rounded-full">
+                            <AvatarImage
+                                src={message.sender.image.url}
+                                alt={message.sender.firstName}
+                                className="object-cover w-full h-full rounded-full"
+                            />
+                            <AvatarFallback
+                                className="w-6 h-6 object-cover rounded-full uppercase text-lg "
+                                alt={message.sender.firstName}
+                            >
+                                {message.sender.firstName[0]}
+                            </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm text-white/60">{message.sender.firstName} {message.sender.lastName}</span>
+                        <span className="text-xs text-white/60">{moment(message.timestamp).format("LT")}</span>
 
+                    </div>
+                ) : (
+                    <div className="text-xs mt-1 text-white/60">
+                        {moment(message.timestamp).format("LT")}
+                    </div>
+                )
+                }
+            </div>
+        )
+    }
     const renderMessages = () => {
         let lastDate = null;
         // console.log(selectChatMessages);
         // console.log(typeof new Date().getDate())
         // const time = new Date().getDate()
-        return selectChatMessages.map((message) => {
+        return selectChatMessages?.map((message) => {
             const date = moment(message.timestamp).format("YYYY-MM-DD");
             const showDate = date !== lastDate;
             lastDate = date;
@@ -146,6 +231,7 @@ const MessageContainer = () => {
                         </div>
                     )}
                     {selectChatType === "contact" && renderContactMessage(message)}
+                    {selectChatType === "channel" && renderChannelMessage(message)}
                 </div>
             );
         });

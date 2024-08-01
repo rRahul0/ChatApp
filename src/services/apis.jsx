@@ -20,4 +20,5 @@ export const MessageEndpoints = {
 export const ChannelEndpoints = {
     CREATE_CHANNEL: BASE_URL + "/channels/create-channel",
     GET_CHANNELS: BASE_URL + "/channels/get-channels",
+    GET_CHANNEL_MESSAGES: BASE_URL + "/channels/get-channel-messages",
 }
