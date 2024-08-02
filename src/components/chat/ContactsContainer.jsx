@@ -64,8 +64,8 @@ const ContactsContainer = () => {
                     </div>
                 </div>
             </div>
-            <div className="max-sm:pb-10">
-            <ProfileInfo />
+            <div className="max-sm:pb-5">
+                <ProfileInfo />
             </div>
         </div>
     );
