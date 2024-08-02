@@ -37,7 +37,7 @@ const ContactsContainer = () => {
     }, []); // Only re-run if dispatch changes
 
     return (
-        <div className="relative md:w-[35vw] lg:w-[30vw] xl:w-[20vw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full flex flex-col justify-between max-sm:pb-10">
+        <div className="relative md:w-[35vw] lg:w-[30vw] xl:w-[20vw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full flex flex-col justify-between ">
 
             <div>
 
@@ -64,7 +64,7 @@ const ContactsContainer = () => {
                     </div>
                 </div>
             </div>
-            <div className="max-sm:pb-5">
+            <div className="">
                 <ProfileInfo />
             </div>
         </div>
