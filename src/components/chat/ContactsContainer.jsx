@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import { AllContactsDm, AllContacts } from "../../services/operations/contactApi";
 import CreateChannel from "./CreateChannel";
 import { getChannels } from "../../services/operations/channelApi";
-
+import logo from "../../../public/logo.png"
 const ContactsContainer = () => {
     const { dmContacts, channels } = useSelector((state) => state.chat);
     const { token } = useSelector((state) => state.auth);
@@ -17,7 +17,7 @@ const ContactsContainer = () => {
         const fetchUsers = async () => {
             try {
                 const fetchedUsers = await AllContactsDm(token);
-                // console.log("Fetched users", fetchedUsers);
+                console.log("Fetched users", fetchedUsers);
                 dispatch(setDmContacts(fetchedUsers));
             } catch (error) {
                 console.error("Failed to fetch users", error);
@@ -38,8 +38,13 @@ const ContactsContainer = () => {
 
     return (
         <div className="relative md:w-[35vw] lg:w-[30vw] xl:w-[20vw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full flex flex-col justify-between max-sm:pb-10">
+
             <div>
-                <div className="pt-3">NeoChat</div>
+
+                <div className="pt-3 flex items-center gap-2 sm:pl-10">
+                    <img src={logo} alt="logo" className="w-10  " />
+                    <span className="text-2xl font-bold text-purple-500">NeoChat</span>
+                </div>
                 <div className="my-5">
                     <div className="flex items-center justify-between pr-10">
                         <Title title="Direct Messages" />

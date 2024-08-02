@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import moment from "moment";
-
+import EditableUserProfile from "./EditProfile";
 
 
 const ProfileInfo = () => {
@@ -54,7 +54,7 @@ const ProfileInfo = () => {
                                     onClick={() => setOpenEditProfileModal(true)}
                                 />
                             </TooltipTrigger>
-                            <TooltipContent className="bg-[#1c1b1e] border-none text-white">Edit Profile</TooltipContent>
+                            <TooltipContent className="bg-[#1c1b1e] border-none text-white py-1.5 px-2 rounded-md m-3">Edit Profile</TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
 
@@ -66,7 +66,7 @@ const ProfileInfo = () => {
                                     onClick={() => setOpenLogoutModal(true)}
                                 />
                             </TooltipTrigger>
-                            <TooltipContent className="bg-[#1c1b1e] border-none text-white">
+                            <TooltipContent className="bg-[#1c1b1e] border-none text-white px-2 py-1.5 rounded-md m-3">
                                 Logout
                             </TooltipContent>
                         </Tooltip>
@@ -143,29 +143,7 @@ const ProfileInfo = () => {
                         {/* <DialogDescription>
                         </DialogDescription> */}
                     </DialogHeader>
-                    <div className="max-w-sm overflow-hidden mt-5 flex flex-col gap-5">
-                        <div className="flex justify-center">
-                            <img className="h-28 w-28 object-cover rounded-full " src={user.image.url} alt="Profile" />
-                        </div>
-                        <div className="p-6">
-                            <h2 className="text-2xl font-semibold text-gray-300">{`${user.firstName} ${user.lastName}`}</h2>
-                            <p className="text-gray-600">{user.email}</p>
-                            <div className="mt-4">
-                                <p className="text-gray-600">
-                                    <span className="font-bold">Joined:</span>
-                                    <span className="text-gray-300"> {moment(user.createdAt).format("LL")}</span>
-                                </p>
-                                <p className="text-gray-600">
-                                    <span className="font-bold">Friends:</span>
-                                    <span className="text-gray-300">  {friendsCount} </span>
-                                </p>
-                                <p className="text-gray-600">
-                                    <span className="font-bold">Group:</span>
-                                    <span className="text-gray-300">  {group} </span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                    <EditableUserProfile/>
 
                 </DialogContent>
             </Dialog>

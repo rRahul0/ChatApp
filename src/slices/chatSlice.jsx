@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { produce } from 'immer';
 
 const initialState = {
     selectChatType: null,
@@ -38,14 +39,15 @@ const chatSlice = createSlice({
             });
         },
         setDmContacts(state, action) {
-            const newContacts = action.payload
-            //Array.isArray(action.payload) ? action.payload : [action.payload];
+            
+             const newContacts = Array.isArray(action.payload) ? action.payload : [action.payload];
             const contactMap = new Map(state.dmContacts.map(contact => [contact._id, contact]));
-            newContacts.forEach(contact => {
+            newContacts.forEach(contact => { 
                 contactMap.set(contact._id, contact);
             });
             state.dmContacts = Array.from(contactMap.values())
             // state.dmContacts = [action.payload, ...state.dmContacts]
+            console.log(state.dmContacts)
         },
         setChannels(state, value) {
             const sortedChannels = value.payload.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
@@ -61,21 +63,23 @@ const chatSlice = createSlice({
             }
             state.channels = channels
         },
-        sortContacts(state, { payload }) {
+
+        sortContacts: produce((draft, { payload }) => {
             const { userId, sender, receiver } = payload;
             const fromId = sender._id === userId ? receiver._id : sender._id;
-                      
-            const index = state.dmContacts.findIndex(contact => contact._id === fromId);
-                      
+
+            const index = draft.dmContacts.findIndex(contact => contact._id === fromId);
+
             if (index !== -1) {
-              const [contact] = state.dmContacts.splice(index, 1);
-              state.dmContacts.unshift(contact);
+                const [contact] = draft.dmContacts.splice(index, 1);
+                draft.dmContacts.unshift(contact);
             } else {
-                console.log("dbhd")
-              state.dmContacts.unshift(sender._id === userId ? receiver : sender);
+                draft.dmContacts.unshift(sender._id === userId ? receiver : sender);
             }
-        }
-          
+        })
+
+
+
     }
 });
 
