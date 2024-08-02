@@ -64,8 +64,7 @@ const CreateChannel = () => {
             </TooltipProvider>
 
             <Dialog open={openNewChannelModal} onOpenChange={setOpenNewChannelModal} >
-                {/* <DialogTrigger>Open</DialogTrigger> */}
-                <DialogContent className="bg-[#181920] border-none text-white w-[400px] h-[400px] flex flex-col ">
+                <DialogContent className="bg-[#181920] border-none text-white w-[400px] h-[400px] flex flex-col rounded-md">
                     <DialogHeader>
                         <DialogTitle>Please fill up the details for new channel.</DialogTitle>
                         <DialogDescription>
@@ -88,7 +87,7 @@ const CreateChannel = () => {
                             value={selectedContacts}
                             onChange={setSelectedContacts}
                             emptyIndicator={
-                                <p className="text-center text-lg leading-10 text-gray-600">
+                                <p className="text-center text-lg leading-10 text-gray-600 ">
                                     No Results Found
                                 </p>
                             }

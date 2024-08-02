@@ -36,7 +36,7 @@ export const SocketProvider = ({ children }) => {
                 contact.sender = message?.sender
                 contact.receiver = message?.receiver
                 if (contact) {
-                    // dispatch(setDmContacts(contact));
+                    console.log("Contact", contact); 
                     dispatch(sortContacts(contact));
                 }
             });
