@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 const Chat = () => {
     const { selectChatType, selectChatData } = useSelector(state => state.chat);
     return ( 
-        <div className="flex h-[93vh] sm:h-screen text-white overflow-hidden ">
+        <div className="flex h-[92vh] sm:h-screen text-white overflow-hidden ">
             <ContactsContainer />
             {selectChatType === null ? <EmptyChatContainer /> : <ChatContainer />}
         </div>
