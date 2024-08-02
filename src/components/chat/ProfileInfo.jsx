@@ -77,7 +77,7 @@ const ProfileInfo = () => {
             </div>
             <Dialog open={openLogoutModal} onOpenChange={setOpenLogoutModal} >
                 {/* <DialogTrigger>Open</DialogTrigger> */}
-                <DialogContent className="max-sm:w-[70%] sm:max-w-fit bg-[#181920] border-none text-white flex flex-col px-12 py-7 rounded-lg">
+                <DialogContent className="max-sm:w-[80%] sm:max-w-fit bg-[#181920] border-none text-white flex flex-col px-12 py-7 rounded-lg">
                     <DialogHeader className="flex flex-col gap-3">
                         <DialogTitle className="text-xl">Logout ...</DialogTitle>
                         <DialogDescription>
