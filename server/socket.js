@@ -64,14 +64,12 @@ const setupSocket = (server) => {
         }));
 
         let channelData = await createChannel.populate('members admin')
-        // channelData = await createChannel.populate('admin', "id email firstName lastName image")
-        // console.log(channelData)
-        const adminSocketId = userSocketMap.get(channelData.admin._id);
+        const adminSocketId = userSocketMap.get(channelData.admin._id.toString());
         if (adminSocketId) {
             io.to(adminSocketId).emit('receive-channel', channelData);
         }
         for (const member of channelData.members) {
-            const memberSocketId = userSocketMap.get(member._id);
+            const memberSocketId = userSocketMap.get(member._id.toString());
             if (memberSocketId) {
                 io.to(memberSocketId).emit('receive-channel', channelData);
             }
@@ -109,9 +107,6 @@ const setupSocket = (server) => {
         const userId = socket.handshake.query.userId;
         if (userId) {
             userSocketMap.set(userId, socket.id);
-            // console.log(`user connected ${userId} with socket Id: ${socket.id}`)
-        } else {
-            // console.log(`user id  not provided during connection`)
         }
         socket.on('send-message', sendMessage);
         socket.on('create-channel', createChannel);
