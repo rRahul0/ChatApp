@@ -41,7 +41,7 @@ const ContactsContainer = () => {
 
             <div>
 
-                <div className="pt-3 flex items-center gap-2 sm:pl-10">
+                <div className="pt-3 flex items-center gap-2 pl-10">
                     <img src={logo} alt="logo" className="w-10  " />
                     <span className="text-2xl font-bold text-purple-500">NeoChat</span>
                 </div>
