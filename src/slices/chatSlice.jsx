@@ -1,5 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { produce } from 'immer';
+
+function safeStringify(obj, seen = new Set()) {
+    return JSON.stringify(obj, function(_, value) {
+        if (typeof value === 'object' && value !== null) {
+            if (seen.has(value)) return;
+            seen.add(value);
+        }
+        return value;
+    });
+}
 
 const initialState = {
     selectChatType: null,
@@ -39,47 +48,47 @@ const chatSlice = createSlice({
             });
         },
         setDmContacts(state, action) {
-            
-             const newContacts = Array.isArray(action.payload) ? action.payload : [action.payload];
+
+            const newContacts = Array.isArray(action.payload) ? action.payload : [action.payload];
             const contactMap = new Map(state.dmContacts.map(contact => [contact._id, contact]));
-            newContacts.forEach(contact => { 
+            newContacts.forEach(contact => {
                 contactMap.set(contact._id, contact);
             });
             state.dmContacts = Array.from(contactMap.values())
-            // state.dmContacts = [action.payload, ...state.dmContacts]
-            console.log(state.dmContacts)
         },
         setChannels(state, value) {
             const sortedChannels = value.payload.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
             state.channels = sortedChannels;
         },
-        addChannel(state, value) {
-            const channels = state.channels
-            const data = channels.find(channel => channel._id === value.payload.channelId)
-            const index = channels.findIndex(channel => channel._id === value.payload.channelId)
-            if (index !== -1 && index !== undefined) {
-                channels.splice(index, 1)
-                channels.unshift(data)
+        addChannel(state, action) {
+            const newChannel = action.payload;
+            const index = state.channels.findIndex(channel => channel._id === newChannel.channelId);
+        
+            if (index !== -1) {
+                // If the channel exists, move it to the top
+                const channel = { ...state.channels[index] }; // Clone to avoid mutations
+                state.channels.splice(index, 1);
+                state.channels.unshift(channel);
+            } else {
+                // If the channel is new, add it to the top
+                state.channels.unshift({ ...newChannel }); // Clone to avoid mutations
             }
-            state.channels = channels
-        },
-
-        sortContacts: produce((draft, { payload }) => {
+        },        
+        sortContacts(state, { payload }) {
             const { userId, sender, receiver } = payload;
             const fromId = sender._id === userId ? receiver._id : sender._id;
-
-            const index = draft.dmContacts.findIndex(contact => contact._id === fromId);
-
+        
+            const index = state.dmContacts.findIndex(contact => contact._id === fromId);
+        
             if (index !== -1) {
-                const [contact] = draft.dmContacts.splice(index, 1);
-                draft.dmContacts.unshift(contact);
+                const contact = JSON.parse(safeStringify(state.dmContacts[index])); // Safely clone
+                state.dmContacts.splice(index, 1);
+                state.dmContacts.unshift(contact);
             } else {
-                draft.dmContacts.unshift(sender._id === userId ? receiver : sender);
+                const user = JSON.parse(safeStringify(sender._id === userId ? receiver : sender)); // Safely clone
+                state.dmContacts.unshift(user);
             }
-        })
-
-
-
+        }   
     }
 });
 

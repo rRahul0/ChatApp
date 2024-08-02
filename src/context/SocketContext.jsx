@@ -36,17 +36,16 @@ export const SocketProvider = ({ children }) => {
                 contact.sender = message?.sender
                 contact.receiver = message?.receiver
                 if (contact) {
-                    console.log("Contact", contact); 
                     dispatch(sortContacts(contact));
                 }
             });
             socket.current.on("receive-channel-message", (message) => {
                 if (selectChatType && (selectChatData?._id === message?.channelId))
                     dispatch(addMessage(message));
-                    dispatch(addChannel(message));
+                dispatch(addChannel(message));
             });
             socket.current.on("receive-channel", (channel) => {
-                dispatch(setChannels(channel));
+                dispatch(addChannel(channel));
             });
 
             return () => {
