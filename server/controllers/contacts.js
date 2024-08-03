@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import Message from '../models/Message.js'
 import mongoose from 'mongoose';
+import Chat from '../models/Chat.js';
 
 export const searchContacts = async (req, res) => {
     try {
@@ -27,58 +28,29 @@ export const getContactsDM = async (req, res) => {
         // Ensure userId is a valid ObjectId
         const userObjectId = new mongoose.Types.ObjectId(userId);
 
-        // Aggregation pipeline to fetch contacts for direct messaging
-        const contacts = await Message.aggregate([
-            {
-                $match: {
-                    $or: [
-                        { sender: userObjectId },
-                        { receiver: userObjectId }
-                    ]
-                }
-            },
-            {
-                $sort: { timestamp: -1 }
-            },
-            {
-                $group: {
-                    _id: {
-                        $cond: {
-                            if: { $eq: ["$sender", userObjectId] },
-                            then: "$receiver",
-                            else: "$sender"
-                        }
-                    },
-                    lastMessageTime: { $first: "$timestamp" },
-                }
-            },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "contactInfo"
-                }
-            },
-            {
-                $unwind: "$contactInfo",
-            },
-            {
-                $project: {
-                    _id: 1,
-                    lastMessageTime: 1,
-                    email: "$contactInfo.email",
-                    firstName: "$contactInfo.firstName",
-                    lastName: "$contactInfo.lastName",
-                    image: "$contactInfo.image",
-                }
-            },
-            {
-                $sort: { lastMessageTime: -1 }
-            }
-        ]);
+        const contacts = await Chat.find({
+            $or: [
+                { user1: userId },
+                { user2: userObjectId }
+            ]
+        })
+            .sort({ updatedAt: -1 })
+            .populate("user1 user2", "email firstName lastName image")
+            .exec();
 
-        return res.status(200).json({ success: true, users: contacts });
+        const result = contacts.map((contact) => {
+            const user = contact.user1._id.toString() === userId ? contact.user2 : contact.user1;
+            return {
+                _id: user._id,
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                image: {...user.image},
+                updatedAt: contact.updatedAt
+            };
+        });
+
+        return res.status(200).json({ success: true, users: result });
     } catch (error) {
         console.error("Error fetching contacts:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
