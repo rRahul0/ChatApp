@@ -37,7 +37,6 @@ export const getContactsDM = async (req, res) => {
             .sort({ updatedAt: -1 })
             .populate("user1 user2", "email firstName lastName image")
             .exec();
-
         const result = contacts.map((contact) => {
             const user = contact.user1._id.toString() === userId ? contact.user2 : contact.user1;
             return {
@@ -46,9 +45,11 @@ export const getContactsDM = async (req, res) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 image: {...user.image},
+                chatId: contact._id,
                 updatedAt: contact.updatedAt
             };
         });
+        // console.log(result)
 
         return res.status(200).json({ success: true, users: result });
     } catch (error) {

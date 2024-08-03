@@ -1,8 +1,8 @@
-import { createChannel } from './controllers/channel.js';
 import Channel from './models/Channel.js';
 import Message from './models/Message.js';
 import Chat from './models/Chat.js';
 import { Server } from 'socket.io';
+import User from './models/User.js';
 
 
 const setupSocket = (server) => {
@@ -39,7 +39,9 @@ const setupSocket = (server) => {
                 ]
             });
             if(chat){
-                await Chat.findByIdAndUpdate(chat._id, { $push: { messages: messageData._id } });
+                const newChat = await Chat.findByIdAndUpdate(chat._id, { $push: { messages: messageData._id } });
+                await User.findByIdAndUpdate(message.sender._id, { $push: { chats: newChat._id } });
+                await User.findByIdAndUpdate(message.receiver._id, { $push: { chats: newChat._id } });
             } else {
                 await Chat.create({
                     user1: message.sender._id,
@@ -60,7 +62,9 @@ const setupSocket = (server) => {
                 ]
             });
             if(chat){
-                await Chat.findByIdAndUpdate(chat._id, { $push: { messages: createMessage._id } });
+                const newChat = await Chat.findByIdAndUpdate(chat._id, { $push: { messages: createMessage._id } });
+                await User.findByIdAndUpdate(message.sender, { $push: { chats: newChat._id } });
+                await User.findByIdAndUpdate(message.receiver, { $push: { chats: newChat._id } });
             } else {
                 await Chat.create({
                     user1: message.sender,
@@ -95,11 +99,14 @@ const setupSocket = (server) => {
 
         let channelData = await createChannel.populate('members admin')
         const adminSocketId = userSocketMap.get(channelData.admin._id.toString());
+
+        await User.findByIdAndUpdate(channelData.admin._id, { $push: { channels: createChannel._id } });
         if (adminSocketId) {
             io.to(adminSocketId).emit('receive-channel', channelData);
         }
         for (const member of channelData.members) {
             const memberSocketId = userSocketMap.get(member._id.toString());
+            await User.findByIdAndUpdate(member._id, { $push: { channels: createChannel._id } });
             if (memberSocketId) {
                 io.to(memberSocketId).emit('receive-channel', channelData);
             }

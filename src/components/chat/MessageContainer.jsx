@@ -29,7 +29,7 @@ const MessageContainer = () => {
             if (selectChatData._id) {
                 if (selectChatType === "contact") {
                     // console.log(selectChatData);
-                    const messages = await getAllMessages(selectChatData._id, token);
+                    const messages = await getAllMessages(selectChatData.chatId, token);
                     dispatch(setSelectChatMessages(messages));
                 }
             }
