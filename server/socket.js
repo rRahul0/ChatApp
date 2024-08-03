@@ -1,6 +1,7 @@
 import { createChannel } from './controllers/channel.js';
 import Channel from './models/Channel.js';
 import Message from './models/Message.js';
+import Chat from './models/Chat.js';
 import { Server } from 'socket.io';
 
 
@@ -25,20 +26,49 @@ const setupSocket = (server) => {
         }
     }
     const sendMessage = async (message) => {
-
-
         let createMessage, messageData, senderSocketId, receiverSocketId;
         if (message.messageType === "file") {
             senderSocketId = userSocketMap.get(message.sender._id);
             receiverSocketId = userSocketMap.get(message.receiver._id);
             messageData = message;
-            // console.log(messageData)
+            console.log(messageData)
+            const chat = await Chat.findOne({
+                $or: [
+                    { user1: message.sender._id, user2: message.receiver._id },
+                    { user1: message.receiver._id, user2: message.sender._id }
+                ]
+            });
+            if(chat){
+                await Chat.findByIdAndUpdate(chat._id, { $push: { messages: messageData._id } });
+            } else {
+                await Chat.create({
+                    user1: message.sender._id,
+                    user2: message.receiver._id,
+                    messages: [messageData._id]
+                })
+            }
         } else {
             senderSocketId = userSocketMap.get(message.sender);
             receiverSocketId = userSocketMap.get(message.receiver);
             createMessage = (await Message.create(message));
             messageData = await createMessage.populate('sender', "id email firstName lastName image")
             messageData = await createMessage.populate('receiver', "id email firstName lastName image")
+            const chat = await Chat.findOne({
+                $or: [
+                    { user1: message.sender, user2: message.receiver },
+                    { user1: message.receiver, user2: message.sender }
+                ]
+            });
+            if(chat){
+                await Chat.findByIdAndUpdate(chat._id, { $push: { messages: createMessage._id } });
+            } else {
+                await Chat.create({
+                    user1: message.sender,
+                    user2: message.receiver,
+                    messages: [createMessage._id]
+                })
+            }
+
             // console.log(messageData)
         }
 
