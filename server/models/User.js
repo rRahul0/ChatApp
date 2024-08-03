@@ -27,6 +27,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "password is required"],
   },
+  chats: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Chat",
+    },
+  ],
+  channels: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Channel",
+    },
+  ],
 }, {timestamps: true});
 
 export default mongoose.model("User", userSchema);

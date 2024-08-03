@@ -4,13 +4,13 @@ import { MessageEndpoints, ChannelEndpoints } from "../apis";
 const {GET_CHANNEL_MESSAGES} = ChannelEndpoints
 const { GET_MESSAGES, UPLOAD_FILE } = MessageEndpoints
 
-export const getAllMessages = async (user2, token) => {
+export const getAllMessages = async (chatId, token) => {
 
     try {
         const response = await apiConnector(
             'POST',
             GET_MESSAGES,
-            { id: user2 },
+            { chatId },
             { Authorization: `Bearer ${token}` }
         )
         const { data } = response;

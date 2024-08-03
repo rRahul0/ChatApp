@@ -1,20 +1,18 @@
+import Chat from '../models/Chat.js'
 import Message from '../models/Message.js'
 import { uploadFileToCloudinary } from '../utils/UploadFile.js'
 
 export const getMessages = async (req, res) => {
     try {
-        const user1 = req.user.id
-        const user2 = req.body.id
+        const {chatId} = req.body
 
-        if (!user1 || !user2)
-            return res.status(400).json({ success: false, message: "user id not found" })
-        const messages = await Message.find({
-            $or: [
-                { sender: user1, receiver: user2 },
-                { sender: user2, receiver: user1 },
-            ],
-        }).sort({ timestamp: 1 })
-        return res.status(200).json({ messages, success: true, message: "messages fetched successfully" })
+        if (!chatId)
+            return res.status(400).json({ success: false, message: "not found" })
+        const messages = await Chat.findById(chatId)
+        .populate("messages")
+        .sort({ timestamp: -1 })
+
+        return res.status(200).json({ messages : messages.messages, success: true, message: "messages fetched successfully" })
     } catch (error) {
         return res.status(500).json({ success: false, message: "something went wrong while fetching messages" })
     }
