@@ -44,7 +44,7 @@ export const getContactsDM = async (req, res) => {
                 email: user.email,
                 firstName: user.firstName,
                 lastName: user.lastName,
-                image: {...user.image},
+                image: { ...user.image },
                 chatId: contact._id,
                 updatedAt: contact.updatedAt
             };

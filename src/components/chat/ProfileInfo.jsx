@@ -143,7 +143,10 @@ const ProfileInfo = () => {
                         {/* <DialogDescription>
                         </DialogDescription> */}
                     </DialogHeader>
-                    <EditableUserProfile/>
+                    {/* <EditableUserProfile/> */}
+                    <div className="h-32 flex items-center justify-center text-3xl">
+                        Coming Soon ...
+                    </div>
 
                 </DialogContent>
             </Dialog>

@@ -5,10 +5,10 @@ export const getUserChannels = async (req, res) => {
     try {
         const userId = req.user.id;
         const channels = await User.findById(userId)
-        .select('channels')
         .populate("channels", "image name")
         .sort({ updatedAt: -1 })
         .exec();
+
 
         if (!channels)
             return res.status(400).json({ success: false, message: "Channels not found" })
