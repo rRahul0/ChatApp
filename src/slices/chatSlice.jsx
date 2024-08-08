@@ -16,6 +16,7 @@ const initialState = {
     selectChatMessages: [],
     dmContacts: [],
     channels: [],
+    notifications:[],
 }
 
 const chatSlice = createSlice({
@@ -88,7 +89,15 @@ const chatSlice = createSlice({
                 const user = JSON.parse(safeStringify(sender._id === userId ? receiver : sender)); // Safely clone
                 state.dmContacts.unshift(user);
             }
-        }   
+        },
+        addNotifications(state, {payload}){
+            const {message} = payload
+            state.notifications.push(message)
+        },
+        removeNotifications(state, {payload}){
+            const {senderId} = payload
+            state.notifications = state.notifications.filter((notifications)=>notifications.sender!==senderId)
+        }
     }
 });
 

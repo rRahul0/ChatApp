@@ -17,12 +17,17 @@ const ChatHeader = () => {
                             className="w-12 h-12 rounded-full"
                         />
                     </div>
-                    <div>
-                        {selectChatType === 'contact' &&
-                            selectChatData.firstName ?
-                            (`${selectChatData.firstName} ${selectChatData.lastName}`)
-                            : selectChatData.email}
-                        { selectChatType === 'channel' && `${selectChatData.name}` }
+                    <div className="flex flex-col items-start">
+                        <div>
+                            {selectChatType === 'contact' &&
+                                selectChatData?.firstName ?
+                                (`${selectChatData?.firstName} ${selectChatData?.lastName}`)
+                                : selectChatData?.email}
+                            {selectChatType === 'channel' && `${selectChatData?.name}`}
+                        </div>
+                        {/* <div>
+                            {selectChatType === 'channel' && `${selectChatData.admin}`}
+                        </div> */}
                     </div>
                 </div>
                 <div className="flex items-center justify-center gap-5 ">

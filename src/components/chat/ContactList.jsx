@@ -13,6 +13,7 @@ const ContactList = ({ contacts, isChannel }) => {
         dispatch(setSelectChatType(isChannel ? "channel" : "contact"));
         dispatch(setSelectChatData(contact));
         if (selectChatData && selectChatData?._id !== contact._id) dispatch(setSelectChatMessages([]));
+        //notification clear 
     }
     return (<div className='mt-5'>
         {contacts?.map((contact) => (
@@ -25,21 +26,27 @@ const ContactList = ({ contacts, isChannel }) => {
                     <div className='text-white'>{contact.username}</div>
                     <div className='text-neutral-400 text-sm'>{contact.email}</div>
                 </div> */}
-                <div className={`flex py-2 pl-10 gap-5 items-center justify-start text-neutral-300 
+                <div className={`flex py-2 px-8 gap-5 items-center justify-start text-neutral-300 
                     ${selectChatData?._id === contact?._id ? ' bg-[#8417ff]' : 'bg-[#2a2b33]'}
                     `}>
                     {
                         !isChannel &&
                         (
-                            <div className='flex '>
+                            <div className='w-full flex '>
+                            
                                 <img src={contact?.image?.url} alt='profile' className='w-10 h-10 rounded-full border-2' />
-                                <div className='ml-4 flex items-center'>
-                                    <div className='text-white text-lg font-semibold'>{contact.firstName} {contact.lastName}</div>
-                                    {/* <div className='text-neutral-400 text-sm'>{contact.email}</div> */}
+                                <div className='w-full flex justify-between '>
+                                    <div className='ml-3 flex items-center flex-col'>
+                                        <div className='text-white text-lg font-semibold'>{contact.firstName} {contact.lastName}</div>
+                                        {/* <p>jcbghcbvjnkv</p> */}
+                                    </div>
+                                    <div className=' flex items-end '>
+                                        {/* <p className='w-5 h-5 border rounded-full bg-purple-600 '>1</p> */}
+                                    </div>
                                 </div>
                             </div>
                         )
-                        
+
                     }{
                         isChannel &&
                         <div className='flex'>
