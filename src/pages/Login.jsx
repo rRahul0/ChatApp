@@ -3,9 +3,9 @@ import Template from '../components/auth/Template'
 function Login() {
     return (
         <div className='bg-[#2a2b33]'>
-            <Template title="Welcome Back"
-                desc1="Build skills for today, tomorrow, and beyond."
-                desc2=" Education to future-proof your career."
+            <Template title="Welcome to NeoChat"
+                desc1="Connect, Communicate, and Collaborate with ease."
+                desc2="Experience the future of chat ."
                 formtype="login"
             />
         </div>
