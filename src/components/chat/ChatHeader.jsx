@@ -27,6 +27,7 @@ const ChatHeader = () => {
                         </div>
                         {/* <div>
                             {selectChatType === 'channel' && `${selectChatData.admin}`}
+                            
                         </div> */}
                     </div>
                 </div>
