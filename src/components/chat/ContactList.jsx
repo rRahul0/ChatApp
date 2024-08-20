@@ -1,19 +1,22 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectChatData, setSelectChatType, setSelectChatMessages } from '@/slices/chatSlice';
+import { useSocket } from '../../context/SocketContext';
 
 
 
 const ContactList = ({ contacts, isChannel }) => {
     // console.log("contacts", contacts[0]);
-
+    const {user} = useSelector((state) => state.profile);
     const { selectChatData, selectChatType, dmContacts } = useSelector((state) => state.chat);
     const dispatch = useDispatch();
+    const socket = useSocket();
     const handleClick = (contact) => {
+        // console.log("Contact", contact, user);
+        socket.emit("is_user_online", user._id, contact._id);
         dispatch(setSelectChatType(isChannel ? "channel" : "contact"));
         dispatch(setSelectChatData(contact));
         if (selectChatData && selectChatData?._id !== contact._id) dispatch(setSelectChatMessages([]));
-        //notification clear 
     }
     return (<div className='mt-5'>
         {contacts?.map((contact) => (

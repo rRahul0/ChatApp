@@ -27,7 +27,7 @@ const setupSocket = (server) => {
                 break;
             }
         }
-    } 
+    }
     const sendMessage = async (message) => {
         let createMessage, messageData, senderSocketId, receiverSocketId;
         if (message.messageType === "file") {
@@ -167,6 +167,15 @@ const setupSocket = (server) => {
         socket.on('send-message', sendMessage);
         socket.on('create-channel', createChannel);
         socket.on('send-channel-message', sendChannelMessage);
+        socket.on('is_user_online', (userId, contactId) => {
+            const contactSocketId = userSocketMap.get(contactId)
+            const userSocketId = userSocketMap.get(userId)
+            if (contactSocketId!=undefined) {
+                io.to(userSocketId).emit('user-online', true)
+            } else {
+                io.to(userSocketId).emit('user-online', false)
+            }
+        });
         socket.on('disconnect', () => disconnect(socket));
     });
 }
