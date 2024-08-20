@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addMessage, setDmContacts, addChannel, setChannels, sortContacts } from "../slices/chatSlice";
+import { addMessage, setDmContacts, addChannel, setChannels, sortContacts, setOnlineUsers } from "../slices/chatSlice";
 import io from "socket.io-client";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -15,7 +15,7 @@ export const SocketProvider = ({ children }) => {
     const dispatch = useDispatch();
     const socket = useRef(null);
     const { user } = useSelector((state) => state.profile);
-    const { selectChatData, selectChatType } = useSelector((state) => state.chat);
+    const { selectChatData, selectChatType, isOnline } = useSelector((state) => state.chat);
 
     useEffect(() => {
         if (user) {
@@ -48,6 +48,10 @@ export const SocketProvider = ({ children }) => {
                 dispatch(addChannel(channel));
             });
 
+            socket.current.on("user-online", (isOnline) => {
+                dispatch(setOnlineUsers(isOnline));
+            }
+            );
             return () => {
                 if (socket.current) {
                     socket.current.disconnect();

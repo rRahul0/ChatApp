@@ -11,6 +11,7 @@ function safeStringify(obj, seen = new Set()) {
 }
 
 const initialState = {
+    isOnline: false,
     selectChatType: null,
     selectChatData: undefined,
     selectChatMessages: [],
@@ -23,6 +24,9 @@ const chatSlice = createSlice({
     name: 'chat',
     initialState,
     reducers: {
+        setOnlineUsers(state, action) {
+            state.isOnline = action.payload;
+        },
         setSelectChatType(state, action) {
             state.selectChatType = action.payload;
         },
@@ -110,6 +114,7 @@ export const {
     setDmContacts,
     setChannels,
     addChannel,
-    sortContacts
+    sortContacts,
+    setOnlineUsers,
 } = chatSlice.actions;
 export default chatSlice.reducer;
