@@ -54,7 +54,7 @@ const MessageContainer = () => {
         }
     }, [selectChatMessages]);
 
-    const checkIfImage = (url) => url.match(/\.(jpeg|jpg|gif|png|bmp|tiff|tif|webp|svg|ico|heic|heif)$/) != null;
+    const checkIfImage = (name) => name.match(/\.(jpeg|jpg|gif|png|bmp|tiff|tif|webp|svg|ico|heic|heif)$/) != null;
 
     const renderContactMessage = (message) => {
         return (
@@ -73,7 +73,7 @@ const MessageContainer = () => {
                             "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50" :
                             "bg-[#2a2b33]/5 text-white/80 border-white/20"
                             } border inline-block py-1 px-3 rounded my-1 max-w-[60%] max-sm:max-w-[90%] break-words `}>
-                            {checkIfImage(message.fileUrl.url) ?
+                            {checkIfImage(message.fileUrl.name) ?
                                 <div className="cursor-pointer">
                                     <img src={message.fileUrl.url}
                                         alt={message.fileUrl.name}
