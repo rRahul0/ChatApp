@@ -3,8 +3,10 @@ import Message from './models/Message.js';
 import Chat from './models/Chat.js';
 import { Server } from 'socket.io';
 import User from './models/User.js';
+import Cryptr from 'cryptr';
+import { config } from 'dotenv';
 
-
+config();
 const setupSocket = (server) => {
     const io = new Server(
         server, {
@@ -14,6 +16,7 @@ const setupSocket = (server) => {
             credentials: true
         }
     })
+    const cryptr = new Cryptr(`${process.env.CRYPTR_SECRET}`);
 
     const userSocketMap = new Map();
     const disconnect = (socket) => {
@@ -24,21 +27,23 @@ const setupSocket = (server) => {
                 break;
             }
         }
-    }
+    } 
     const sendMessage = async (message) => {
         let createMessage, messageData, senderSocketId, receiverSocketId;
         if (message.messageType === "file") {
             senderSocketId = userSocketMap.get(message.sender._id);
             receiverSocketId = userSocketMap.get(message.receiver._id);
             messageData = message;
-            console.log(messageData)
+            messageData.fileUrl.url = cryptr.decrypt(message.fileUrl.url);
+            messageData.fileUrl.public_id = cryptr.decrypt(message.fileUrl.public_id);
+            // console.log(messageData)
             const chat = await Chat.findOne({
                 $or: [
                     { user1: message.sender._id, user2: message.receiver._id },
                     { user1: message.receiver._id, user2: message.sender._id }
                 ]
             });
-            if(chat){
+            if (chat) {
                 const newChat = await Chat.findByIdAndUpdate(chat._id, { $push: { messages: messageData._id } });
                 await User.findByIdAndUpdate(message.sender._id, { $push: { chats: newChat._id } });
                 await User.findByIdAndUpdate(message.receiver._id, { $push: { chats: newChat._id } });
@@ -52,7 +57,12 @@ const setupSocket = (server) => {
         } else {
             senderSocketId = userSocketMap.get(message.sender);
             receiverSocketId = userSocketMap.get(message.receiver);
+            message.content = cryptr.encrypt(message.content);
+
             createMessage = (await Message.create(message));
+            // console.log(createMessage)
+            createMessage.content = cryptr.decrypt(createMessage.content);
+
             messageData = await createMessage.populate('sender', "id email firstName lastName image")
             messageData = await createMessage.populate('receiver', "id email firstName lastName image")
             const chat = await Chat.findOne({
@@ -61,7 +71,7 @@ const setupSocket = (server) => {
                     { user1: message.receiver, user2: message.sender }
                 ]
             });
-            if(chat){
+            if (chat) {
                 const newChat = await Chat.findByIdAndUpdate(chat._id, { $push: { messages: createMessage._id } });
                 await User.findByIdAndUpdate(message.sender, { $push: { chats: newChat._id } });
                 await User.findByIdAndUpdate(message.receiver, { $push: { chats: newChat._id } });
@@ -113,16 +123,25 @@ const setupSocket = (server) => {
         }
     }
     const sendChannelMessage = async (message) => {
-        const { messageType, sender, channelId, content } = message
+        const { messageType, sender, channelId } = message
+        let { content } = message;
+
         let createMessage
         if (messageType !== "file") {
+            content = cryptr.encrypt(content);
+            message.content = content;
             createMessage = (await Message.create(message)); // This section may be updated
-        } else{
-            createMessage = message
+        } else {
+            createMessage = message;
         }
-            // console.log(message)
         const messageData = await Message.findById(createMessage._id).populate('sender', "id email firstName lastName image").exec();
-        // console.log(messageData)
+        // console.log(messageData, "54") 
+        if (messageData.content) messageData.content = cryptr.decrypt(messageData.content);
+        if (messageData.fileUrl) {
+            messageData.fileUrl.url = cryptr.decrypt(messageData.fileUrl.url);
+            messageData.fileUrl.public_id = cryptr.decrypt(messageData.fileUrl.public_id);
+        }
+
         await Channel.findByIdAndUpdate(channelId, { $push: { messages: createMessage._id } });
         const channel = await Channel.findById(channelId).populate('members')
         const finalData = { ...messageData._doc, channelId: channel._id }

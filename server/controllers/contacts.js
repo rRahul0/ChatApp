@@ -6,9 +6,9 @@ import Chat from '../models/Chat.js';
 export const searchContacts = async (req, res) => {
     try {
         const { search } = req.body;
-
+ 
         if (!search) return res.status(400).send("Please enter username");
-
+ 
         const sanitizedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
         const regex = new RegExp(sanitizedSearch, 'i');
