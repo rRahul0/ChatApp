@@ -17,7 +17,7 @@ const ChatHeader = () => {
         const checkUserOnlineStatus = () => {
             // console.log(selectChatData)
             socket.emit("is_user_online", user._id, selectChatData._id)
-           
+
         };
 
         // Check the online status every 10 seconds
@@ -49,9 +49,11 @@ const ChatHeader = () => {
                                 : selectChatData?.email}
                             {selectChatType === 'channel' && `${selectChatData?.name}`}
                         </div>
-                        <div className={`text-sm ${!isOnline? "text-neutral-500":"text-green-600"}`}>
-                            {isOnline ? "Online" : "Offline"}
-                        </div>
+                        {selectChatType==='contact' &&
+                            <div className={`text-sm ${!isOnline ? "text-neutral-500" : "text-green-600"}`}>
+                                {isOnline ? "Online" : "Offline"}
+                            </div>
+                        }
                     </div>
                 </div>
                 <div className="flex items-center justify-center gap-5 ">
