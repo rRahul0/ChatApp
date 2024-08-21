@@ -1,6 +1,13 @@
 import React, { createContext, useContext, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addMessage, setDmContacts, addChannel, setChannels, sortContacts, setOnlineUsers } from "../slices/chatSlice";
+import {
+    addMessage,
+    setDmContacts,
+    addChannel,
+    setChannels,
+    sortContacts,
+    setOnlineUsers, updateDmContacts
+} from "../slices/chatSlice";
 import io from "socket.io-client";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -29,8 +36,11 @@ export const SocketProvider = ({ children }) => {
             });
 
             socket.current.on("receive-message", (message) => {
-                if (selectChatType && (selectChatData?._id === message?.sender?._id || selectChatData?._id === message?.receiver?._id))
+                if (selectChatType && (selectChatData?._id === message?.sender?._id || selectChatData?._id === message?.receiver?._id)) {
                     dispatch(addMessage(message));
+                }
+                // console.log("Message received", message, user._id);
+                dispatch(updateDmContacts({message, userId:user._id}));
                 const contact = user?._id === message?.receiver?._id ? message?.sender : message?.receiver;
                 contact.userId = user?._id
                 contact.sender = message?.sender
@@ -50,8 +60,7 @@ export const SocketProvider = ({ children }) => {
 
             socket.current.on("user-online", (isOnline) => {
                 dispatch(setOnlineUsers(isOnline));
-            }
-            );
+            });
             return () => {
                 if (socket.current) {
                     socket.current.disconnect();

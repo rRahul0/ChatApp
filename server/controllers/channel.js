@@ -37,7 +37,7 @@ export const getChannelMessages = async (req, res) => {
                 select: 'firstName lastName email _id image'
             }
         })
-        console.log(messages)
+        // console.log(messages)
         if (!messages)
             return res.status(400).json({ success: false, message: "Messages not found" })
         const channelMsg = messages.messages.map((msg) => {
