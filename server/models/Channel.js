@@ -27,16 +27,20 @@ const channelSchema = new mongoose.Schema({
             ref: "Message",
         },
     ],
+    lastMessage: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Message",
+    },
 }, { timestamps: true });
 
-channelSchema.pre("save", function (next) {
-    this.updatedAt = Date.now();
-    next();
-});
+// channelSchema.pre("save", function (next) {
+//     this.updatedAt = Date.now();
+//     next();
+// });
 
-channelSchema.pre("findOneAndUpdate", function (next) {
-    this.set({updatedAt: Date.now()}) ;
-    next();
-});
+// channelSchema.pre("findOneAndUpdate", function (next) {
+//     this.set({updatedAt: Date.now()}) ;
+//     next();
+// });
 
 export default mongoose.model("Channel", channelSchema);

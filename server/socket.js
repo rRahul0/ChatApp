@@ -44,14 +44,18 @@ const setupSocket = (server) => {
                 ]
             });
             if (chat) {
-                const newChat = await Chat.findByIdAndUpdate(chat._id, { $push: { messages: messageData._id } });
+                const newChat = await Chat.findByIdAndUpdate(chat._id, { 
+                    $push: { messages: messageData._id }, 
+                    $set: { lastMessage: messageData._id }
+                }, {new: true});
                 await User.findByIdAndUpdate(message.sender._id, { $push: { chats: newChat._id } });
                 await User.findByIdAndUpdate(message.receiver._id, { $push: { chats: newChat._id } });
             } else {
                 await Chat.create({
                     user1: message.sender._id,
                     user2: message.receiver._id,
-                    messages: [messageData._id]
+                    messages: [messageData._id],
+                    lastMessage: messageData._id
                 })
             }
         } else {
@@ -72,14 +76,15 @@ const setupSocket = (server) => {
                 ]
             });
             if (chat) {
-                const newChat = await Chat.findByIdAndUpdate(chat._id, { $push: { messages: createMessage._id } });
+                const newChat = await Chat.findByIdAndUpdate(chat._id, { $push: { messages: createMessage._id }, $set: { lastMessage: createMessage._id } }, { new: true });
                 await User.findByIdAndUpdate(message.sender, { $push: { chats: newChat._id } });
                 await User.findByIdAndUpdate(message.receiver, { $push: { chats: newChat._id } });
             } else {
                 await Chat.create({
                     user1: message.sender,
                     user2: message.receiver,
-                    messages: [createMessage._id]
+                    messages: [createMessage._id],
+                    lastMessage: createMessage._id
                 })
             }
 
@@ -137,12 +142,12 @@ const setupSocket = (server) => {
         const messageData = await Message.findById(createMessage._id).populate('sender', "id email firstName lastName image").exec();
         // console.log(messageData, "54") 
         if (messageData.content) messageData.content = cryptr.decrypt(messageData.content);
-        if (messageData.fileUrl) {
+        else {
             messageData.fileUrl.url = cryptr.decrypt(messageData.fileUrl.url);
             messageData.fileUrl.public_id = cryptr.decrypt(messageData.fileUrl.public_id);
         }
 
-        await Channel.findByIdAndUpdate(channelId, { $push: { messages: createMessage._id } });
+        await Channel.findByIdAndUpdate(channelId, { $push: { messages: createMessage._id }, $set: { lastMessage: createMessage._id } });
         const channel = await Channel.findById(channelId).populate('members')
         const finalData = { ...messageData._doc, channelId: channel._id }
 
@@ -161,9 +166,8 @@ const setupSocket = (server) => {
     }
     io.on('connection', (socket) => {
         const userId = socket.handshake.query.userId;
-        if (userId) {
-            userSocketMap.set(userId, socket.id);
-        }
+        if (userId) userSocketMap.set(userId, socket.id);
+        
         socket.on('send-message', sendMessage);
         socket.on('create-channel', createChannel);
         socket.on('send-channel-message', sendChannelMessage);
@@ -176,6 +180,7 @@ const setupSocket = (server) => {
                 io.to(userSocketId).emit('user-online', false)
             }
         });
+        
         socket.on('disconnect', () => disconnect(socket));
     });
 }

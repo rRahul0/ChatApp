@@ -17,9 +17,13 @@ const chatSchema = new mongoose.Schema({
             ref: "Message",
         },
     ],
+    lastMessage: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Message",
+    },
 }, { timestamps: true });
 
-// chatSchema.pre("save", function (next) {
+// chatSchema.post("save", function (next) {
 //     this.updatedAt = Date.now();
 //     next();
 // });

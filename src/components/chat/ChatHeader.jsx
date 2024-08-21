@@ -10,23 +10,12 @@ const ChatHeader = () => {
     const socket = useSocket();
     const { user } = useSelector(state => state.profile);
 
-    // const [isUserOnline, setIsUserOnline] = useState(false);
-
     useEffect(() => {
-        // Function to check if the selected chat user is online
         const checkUserOnlineStatus = () => {
-            // console.log(selectChatData)
             socket.emit("is_user_online", user._id, selectChatData._id)
-
         };
-
-        // Check the online status every 10 seconds
         const intervalId = setInterval(checkUserOnlineStatus, 5000);
-
-        // Initial check when component mounts
         checkUserOnlineStatus();
-
-        // Clear interval on component unmount
         return () => clearInterval(intervalId);
     }, [socket, selectChatData, user, isOnline]);
 
