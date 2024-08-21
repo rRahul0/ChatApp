@@ -3,8 +3,10 @@ import Message from './models/Message.js';
 import Chat from './models/Chat.js';
 import { Server } from 'socket.io';
 import User from './models/User.js';
+import Cryptr from 'cryptr';
+import { config } from 'dotenv';
 
-
+config();
 const setupSocket = (server) => {
     const io = new Server(
         server, {
@@ -14,6 +16,7 @@ const setupSocket = (server) => {
             credentials: true
         }
     })
+    const cryptr = new Cryptr(`${process.env.CRYPTR_SECRET}`);
 
     const userSocketMap = new Map();
     const disconnect = (socket) => {
@@ -31,28 +34,39 @@ const setupSocket = (server) => {
             senderSocketId = userSocketMap.get(message.sender._id);
             receiverSocketId = userSocketMap.get(message.receiver._id);
             messageData = message;
-            console.log(messageData)
+            messageData.fileUrl.url = cryptr.decrypt(message.fileUrl.url);
+            messageData.fileUrl.public_id = cryptr.decrypt(message.fileUrl.public_id);
+            // console.log(messageData)
             const chat = await Chat.findOne({
                 $or: [
                     { user1: message.sender._id, user2: message.receiver._id },
                     { user1: message.receiver._id, user2: message.sender._id }
                 ]
             });
-            if(chat){
-                const newChat = await Chat.findByIdAndUpdate(chat._id, { $push: { messages: messageData._id } });
+            if (chat) {
+                const newChat = await Chat.findByIdAndUpdate(chat._id, { 
+                    $push: { messages: messageData._id }, 
+                    $set: { lastMessage: messageData._id }
+                }, {new: true});
                 await User.findByIdAndUpdate(message.sender._id, { $push: { chats: newChat._id } });
                 await User.findByIdAndUpdate(message.receiver._id, { $push: { chats: newChat._id } });
             } else {
                 await Chat.create({
                     user1: message.sender._id,
                     user2: message.receiver._id,
-                    messages: [messageData._id]
+                    messages: [messageData._id],
+                    lastMessage: messageData._id
                 })
             }
         } else {
             senderSocketId = userSocketMap.get(message.sender);
             receiverSocketId = userSocketMap.get(message.receiver);
+            message.content = cryptr.encrypt(message.content);
+
             createMessage = (await Message.create(message));
+            // console.log(createMessage)
+            createMessage.content = cryptr.decrypt(createMessage.content);
+
             messageData = await createMessage.populate('sender', "id email firstName lastName image")
             messageData = await createMessage.populate('receiver', "id email firstName lastName image")
             const chat = await Chat.findOne({
@@ -61,15 +75,16 @@ const setupSocket = (server) => {
                     { user1: message.receiver, user2: message.sender }
                 ]
             });
-            if(chat){
-                const newChat = await Chat.findByIdAndUpdate(chat._id, { $push: { messages: createMessage._id } });
+            if (chat) {
+                const newChat = await Chat.findByIdAndUpdate(chat._id, { $push: { messages: createMessage._id }, $set: { lastMessage: createMessage._id } }, { new: true });
                 await User.findByIdAndUpdate(message.sender, { $push: { chats: newChat._id } });
                 await User.findByIdAndUpdate(message.receiver, { $push: { chats: newChat._id } });
             } else {
                 await Chat.create({
                     user1: message.sender,
                     user2: message.receiver,
-                    messages: [createMessage._id]
+                    messages: [createMessage._id],
+                    lastMessage: createMessage._id
                 })
             }
 
@@ -113,17 +128,26 @@ const setupSocket = (server) => {
         }
     }
     const sendChannelMessage = async (message) => {
-        const { messageType, sender, channelId, content } = message
+        const { messageType, sender, channelId } = message
+        let { content } = message;
+
         let createMessage
         if (messageType !== "file") {
+            content = cryptr.encrypt(content);
+            message.content = content;
             createMessage = (await Message.create(message)); // This section may be updated
-        } else{
-            createMessage = message
+        } else {
+            createMessage = message;
         }
-            // console.log(message)
         const messageData = await Message.findById(createMessage._id).populate('sender', "id email firstName lastName image").exec();
-        // console.log(messageData)
-        await Channel.findByIdAndUpdate(channelId, { $push: { messages: createMessage._id } });
+        // console.log(messageData, "54") 
+        if (messageData.content) messageData.content = cryptr.decrypt(messageData.content);
+        else {
+            messageData.fileUrl.url = cryptr.decrypt(messageData.fileUrl.url);
+            messageData.fileUrl.public_id = cryptr.decrypt(messageData.fileUrl.public_id);
+        }
+
+        await Channel.findByIdAndUpdate(channelId, { $push: { messages: createMessage._id }, $set: { lastMessage: createMessage._id } });
         const channel = await Channel.findById(channelId).populate('members')
         const finalData = { ...messageData._doc, channelId: channel._id }
 
@@ -142,12 +166,21 @@ const setupSocket = (server) => {
     }
     io.on('connection', (socket) => {
         const userId = socket.handshake.query.userId;
-        if (userId) {
-            userSocketMap.set(userId, socket.id);
-        }
+        if (userId) userSocketMap.set(userId, socket.id);
+        
         socket.on('send-message', sendMessage);
         socket.on('create-channel', createChannel);
         socket.on('send-channel-message', sendChannelMessage);
+        socket.on('is_user_online', (userId, contactId) => {
+            const contactSocketId = userSocketMap.get(contactId)
+            const userSocketId = userSocketMap.get(userId)
+            if (contactSocketId!=undefined) {
+                io.to(userSocketId).emit('user-online', true)
+            } else {
+                io.to(userSocketId).emit('user-online', false)
+            }
+        });
+        
         socket.on('disconnect', () => disconnect(socket));
     });
 }

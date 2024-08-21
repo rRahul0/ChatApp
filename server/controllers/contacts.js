@@ -1,8 +1,11 @@
 import User from "../models/User.js";
-import Message from '../models/Message.js'
 import mongoose from 'mongoose';
 import Chat from '../models/Chat.js';
+import Cryptr from 'cryptr';
+import { config } from 'dotenv';
 
+config();
+const cryptr = new Cryptr(`${process.env.CRYPTR_SECRET}`);
 export const searchContacts = async (req, res) => {
     try {
         const { search } = req.body;
@@ -35,8 +38,10 @@ export const getContactsDM = async (req, res) => {
             ]
         })
             .sort({ updatedAt: -1 })
-            .populate("user1 user2", "email firstName lastName image")
+            .populate("user1 user2 lastMessage")
             .exec();
+        // console.log(contacts)
+
         const result = contacts.map((contact) => {
             const user = contact.user1._id.toString() === userId ? contact.user2 : contact.user1;
             return {
@@ -46,7 +51,8 @@ export const getContactsDM = async (req, res) => {
                 lastName: user.lastName,
                 image: { ...user.image },
                 chatId: contact._id,
-                updatedAt: contact.updatedAt
+                lastMessage: contact.lastMessage.content? cryptr.decrypt(contact.lastMessage.content): null,
+                msgTime: contact.updatedAt
             };
         });
         // console.log(result)

@@ -1,6 +1,13 @@
 import React, { createContext, useContext, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addMessage, setDmContacts, addChannel, setChannels, sortContacts } from "../slices/chatSlice";
+import {
+    addMessage,
+    setDmContacts,
+    addChannel,
+    setChannels,
+    sortContacts,
+    setOnlineUsers, updateDmContacts
+} from "../slices/chatSlice";
 import io from "socket.io-client";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -15,7 +22,7 @@ export const SocketProvider = ({ children }) => {
     const dispatch = useDispatch();
     const socket = useRef(null);
     const { user } = useSelector((state) => state.profile);
-    const { selectChatData, selectChatType } = useSelector((state) => state.chat);
+    const { selectChatData, selectChatType, isOnline } = useSelector((state) => state.chat);
 
     useEffect(() => {
         if (user) {
@@ -29,8 +36,11 @@ export const SocketProvider = ({ children }) => {
             });
 
             socket.current.on("receive-message", (message) => {
-                if (selectChatType && (selectChatData?._id === message?.sender?._id || selectChatData?._id === message?.receiver?._id))
+                if (selectChatType && (selectChatData?._id === message?.sender?._id || selectChatData?._id === message?.receiver?._id)) {
                     dispatch(addMessage(message));
+                }
+                // console.log("Message received", message, user._id);
+                dispatch(updateDmContacts({message, userId:user._id}));
                 const contact = user?._id === message?.receiver?._id ? message?.sender : message?.receiver;
                 contact.userId = user?._id
                 contact.sender = message?.sender
@@ -48,6 +58,9 @@ export const SocketProvider = ({ children }) => {
                 dispatch(addChannel(channel));
             });
 
+            socket.current.on("user-online", (isOnline) => {
+                dispatch(setOnlineUsers(isOnline));
+            });
             return () => {
                 if (socket.current) {
                     socket.current.disconnect();
