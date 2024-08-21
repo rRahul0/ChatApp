@@ -17,7 +17,7 @@ export const getMessages = async (req, res) => {
             .sort({ timestamp: -1 });
 
         const decryptMsg = messages.messages.map((msg) => {
-            try {
+            // try {
 
                 if (msg.messageType === "file") {
                     msg.fileUrl.url = cryptr.decrypt(msg.fileUrl.url);
@@ -26,9 +26,9 @@ export const getMessages = async (req, res) => {
                     msg.content = cryptr.decrypt(msg.content);
 
                 }
-            } catch (e) {
-                console.log(e)
-            }
+            // } catch (e) {
+            //     console.log(e)
+            // }
             return msg;
         }
         )
