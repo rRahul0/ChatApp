@@ -41,15 +41,15 @@ export const getChannelMessages = async (req, res) => {
         if (!messages)
             return res.status(400).json({ success: false, message: "Messages not found" })
         const channelMsg = messages.messages.map((msg) => {
-            try {
+            // try {
                 if (msg.content) msg.content = cryptr.decrypt(msg.content);
-                if (msg.fileUrl) {
+                else {
                     msg.fileUrl.url = cryptr.decrypt(msg.fileUrl.url);
                     msg.fileUrl.public_id = cryptr.decrypt(msg.fileUrl.public_id);
                 }
-            } catch (e) {
-                console.log(e)
-            }
+            // } catch (e) {
+            //     console.log(e)
+            // }
             return msg;
 
         })
@@ -57,7 +57,7 @@ export const getChannelMessages = async (req, res) => {
         messages.messages = channelMsg;
         if (!channelMsg)
             return res.status(400).json({ success: false, message: "Channel not found" })
-        return res.status(200).json({ channel:messages, success: true, message: "Messages fetched successfully" })
+        return res.status(200).json({ channel: messages, success: true, message: "Messages fetched successfully" })
     } catch (error) {
         return res.status(400).json({ success: false, message: "Something went wrong" })
     }

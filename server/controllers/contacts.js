@@ -51,7 +51,7 @@ export const getContactsDM = async (req, res) => {
                 lastName: user.lastName,
                 image: { ...user.image },
                 chatId: contact._id,
-                lastMessage: contact.lastMessage.content? cryptr.decrypt(contact.lastMessage.content): null,
+                lastMessage: contact.lastMessage?.content? cryptr.decrypt(contact.lastMessage.content): null,
                 msgTime: contact.updatedAt
             };
         });
