@@ -34,7 +34,13 @@ const ContactList = ({ contacts, isChannel }) => {
                                 <img src={contact?.image?.url} alt='profile' className='w-10 h-10 rounded-full border-2' />
                                 <div className='w-full flex justify-between'>
                                     <div className='ml-3 flex flex-col items-start '>
-                                        <div className='text-white text-lg font-semibold'>{contact.firstName} {contact.lastName}</div>
+                                        <div className='text-white text-lg font-semibold'>
+                                            {
+                                                contact.firstName.length + contact.lastName.length > 11 ?
+                                                    (contact.firstName + " " + contact.lastName).slice(0, 11) + " ..." :
+                                                    contact.firstName + " " + contact.lastName
+                                            }
+                                        </div>
                                         <div className='text-[#E0E0E0] text-sm'>
                                             {typeof dmContacts[index].lastMessage === 'string' ?
                                                 (dmContacts[index].lastMessage.length > 18 ?
@@ -46,7 +52,7 @@ const ContactList = ({ contacts, isChannel }) => {
                                     </div>
                                     <div className='text-neutral-400 text-sm flex items-center'>
                                         {moment(dmContacts[index].msgTime).format('h:mm A')}
-                                    </div> 
+                                    </div>
                                 </div>
                             </div>
                         )}
