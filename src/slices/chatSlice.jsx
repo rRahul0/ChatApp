@@ -11,6 +11,7 @@ function safeStringify(obj, seen = new Set()) {
 }
 
 const initialState = {
+    isOnline: false,
     selectChatType: null,
     selectChatData: undefined,
     selectChatMessages: [],
@@ -23,6 +24,9 @@ const chatSlice = createSlice({
     name: 'chat',
     initialState,
     reducers: {
+        setOnlineUsers(state, action) {
+            state.isOnline = action.payload;
+        },
         setSelectChatType(state, action) {
             state.selectChatType = action.payload;
         },
@@ -47,7 +51,7 @@ const chatSlice = createSlice({
                 receiver: state.selectChatType === "channel" ? message.receiver : message.receiver._id,
                 sender: state.selectChatType === "channel" ? message.sender : message.sender._id,
             });
-        },
+        }, 
         setDmContacts(state, action) {
 
             const newContacts = Array.isArray(action.payload) ? action.payload : [action.payload];
@@ -56,6 +60,16 @@ const chatSlice = createSlice({
                 contactMap.set(contact._id, contact);
             });
             state.dmContacts = Array.from(contactMap.values())
+        },
+        updateDmContacts(state, action) {
+            const { message, userId } = action.payload;
+            const fromId = message.sender._id === userId ? message.receiver._id : message.sender._id;
+            const index = state.dmContacts.findIndex(contact => contact._id.toString() === fromId.toString());
+            if (index !== -1) {
+                const contact = state.dmContacts[index];
+                contact.lastMessage = message.content?message.content: null;
+                contact.msgTime = message.updatedAt;
+            }
         },
         setChannels(state, value) {
             const sortedChannels = value.payload.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
@@ -83,6 +97,7 @@ const chatSlice = createSlice({
         
             if (index !== -1) {
                 const contact = JSON.parse(safeStringify(state.dmContacts[index])); // Safely clone
+                // console.log(contact)
                 state.dmContacts.splice(index, 1);
                 state.dmContacts.unshift(contact);
             } else {
@@ -108,8 +123,10 @@ export const {
     closeChat,
     addMessage,
     setDmContacts,
+    updateDmContacts,
     setChannels,
     addChannel,
-    sortContacts
+    sortContacts,
+    setOnlineUsers,
 } = chatSlice.actions;
 export default chatSlice.reducer;

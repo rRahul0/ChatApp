@@ -35,7 +35,7 @@ const ProfileInfo = () => {
                     onClick={setOpenProfileModal}
                     className="w-12 h-12 relative text-white cursor-pointer">
                         <img
-                            src={user.image.url}
+                            src={user?.image?.url}
                             alt="mcnbhdf"
                             className="w-full h-full object-cover rounded-full"
                         />
@@ -108,7 +108,7 @@ const ProfileInfo = () => {
                     </DialogHeader>
                     <div className="max-w-sm shadow-lg rounded-lg overflow-hidden mt-5 flex flex-col gap-5">
                         <div className="flex justify-center">
-                            <img className="h-28 w-28 object-cover rounded-full " src={user.image.url} alt="Profile" />
+                            <img className="h-28 w-28 object-cover rounded-full " src={user?.image?.url} alt="Profile" />
                         </div>
                         <div className="p-6">
                             <h2 className="text-2xl font-semibold text-gray-300">{`${user.firstName} ${user.lastName}`}</h2>
