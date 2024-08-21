@@ -36,8 +36,8 @@ const ContactList = ({ contacts, isChannel }) => {
                                     <div className='ml-3 flex flex-col items-start '>
                                         <div className='text-white text-lg font-semibold'>
                                             {
-                                                contact.firstName.length + contact.lastName.length > 11 ?
-                                                    (contact.firstName + " " + contact.lastName).slice(0, 11) + " ..." :
+                                                contact.firstName.length + contact.lastName.length > 10 ?
+                                                    (contact.firstName + " " + contact.lastName).slice(0, 10) + " ..." :
                                                     contact.firstName + " " + contact.lastName
                                             }
                                         </div>
