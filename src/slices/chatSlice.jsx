@@ -24,6 +24,7 @@ const chatSlice = createSlice({
     name: 'chat',
     initialState,
     reducers: {
+
         setOnlineUsers(state, action) {
             state.isOnline = action.payload;
         },
@@ -88,7 +89,21 @@ const chatSlice = createSlice({
                 // If the channel is new, add it to the top
                 state.channels.unshift({ ...newChannel }); // Clone to avoid mutations
             }
-        },        
+        },  
+        updateChannel(state, action) {
+            const message = action.payload
+            const channelId = message.channelId
+// console.log(message)
+            const index = state.channels.findIndex(channel => channel._id === channelId);
+            // console.log(index)
+            if (index !== -1) {
+                const channel = state.channels[index];
+                // console.log(channel)
+                channel.lastMsg = message.content?message.content:null;
+                channel.lastMsgBy = message.sender;
+                channel.updatedAt = message.updatedAt;
+            }
+        },
         sortContacts(state, { payload }) {
             const { userId, sender, receiver } = payload;
             const fromId = sender._id === userId ? receiver._id : sender._id;
@@ -126,6 +141,7 @@ export const {
     updateDmContacts,
     setChannels,
     addChannel,
+    updateChannel,
     sortContacts,
     setOnlineUsers,
 } = chatSlice.actions;

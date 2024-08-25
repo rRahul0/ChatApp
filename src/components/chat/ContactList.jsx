@@ -10,7 +10,7 @@ const ContactList = ({ contacts, isChannel }) => {
     const { selectChatData, selectChatType, dmContacts } = useSelector((state) => state.chat);
     const dispatch = useDispatch();
     const socket = useSocket();
-    // console.log(dmContacts)
+    // if (isChannel) console.log(contacts)
     const handleClick = (contact) => {
         socket.emit("is_user_online", user._id, contact._id);
         dispatch(setSelectChatType(isChannel ? "channel" : "contact"));
@@ -57,12 +57,26 @@ const ContactList = ({ contacts, isChannel }) => {
                             </div>
                         )}
                         {isChannel && (
-                            <div className='flex'>
-                                <div className='w-10 h-10 rounded-full bg-[#2f303b] flex items-center justify-center'>
+                            <div className='w-full flex items-center '>
+                                <div className='w-12 h-10 rounded-full bg-[#2f303b] flex items-center justify-center'>
                                     <span>#</span>
                                 </div>
-                                <div className='ml-4 flex items-center'>
-                                    <div className='text-white text-lg font-semibold'>{contact.name || "Channel"}</div>
+                                <div className='w-full ml-4 flex flex-col items-start'>
+                                    <div className='text-white text-lg font-semibold'>
+                                        {contact.name || "Channel"}
+                                    </div>
+                                    <div className='w-full'>
+                                        {contact.lastMsg && contact.lastMsgBy && (
+                                            <div className='w-full flex items-center justify-between text-gray-400 text-sm '>
+                                                <div>
+                                                    <span className='font-semibold'>{contact.lastMsgBy.firstName} :</span> {contact.lastMsg}
+                                                </div>
+                                                <div className='ml-1 text-xs'>
+                                                    {moment(contact.updatedAt).fromNow()}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         )}

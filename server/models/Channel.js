@@ -27,9 +27,13 @@ const channelSchema = new mongoose.Schema({
             ref: "Message",
         },
     ],
-    lastMessage: {
+    lastMessage: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: "Message",
+    },
+    lastMsgBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
     },
 }, { timestamps: true });
 

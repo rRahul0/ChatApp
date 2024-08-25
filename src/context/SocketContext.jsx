@@ -6,7 +6,9 @@ import {
     addChannel,
     setChannels,
     sortContacts,
-    setOnlineUsers, updateDmContacts
+    setOnlineUsers, 
+    updateDmContacts,
+    updateChannel
 } from "../slices/chatSlice";
 import io from "socket.io-client";
 
@@ -53,6 +55,8 @@ export const SocketProvider = ({ children }) => {
                 if (selectChatType && (selectChatData?._id === message?.channelId))
                     dispatch(addMessage(message));
                 dispatch(addChannel(message));
+                // console.log("Channel message received", message);
+                dispatch(updateChannel(message));
             });
             socket.current.on("receive-channel", (channel) => {
                 dispatch(addChannel(channel));

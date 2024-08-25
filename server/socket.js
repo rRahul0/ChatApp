@@ -44,12 +44,17 @@ const setupSocket = (server) => {
                 ]
             });
             if (chat) {
-                const newChat = await Chat.findByIdAndUpdate(chat._id, { 
-                    $push: { messages: messageData._id }, 
-                    $set: { lastMessage: messageData._id }
-                }, {new: true});
-                await User.findByIdAndUpdate(message.sender._id, { $push: { chats: newChat._id } });
-                await User.findByIdAndUpdate(message.receiver._id, { $push: { chats: newChat._id } });
+                const alreadyIn = await User.findOne({ chats: chat._id });
+                if (!alreadyIn) {
+                    const newChat = await Chat.findByIdAndUpdate(chat._id, {
+                        $push: { messages: messageData._id },
+                        $set: { lastMessage: messageData._id }
+                    }, { new: true });
+                    await User.updateMany(
+                        { _id: { $in: [message.sender._id, message.receiver._id] } },
+                        { $push: { chats: updatedChat._id } }
+                    );
+                }
             } else {
                 await Chat.create({
                     user1: message.sender._id,
@@ -76,9 +81,15 @@ const setupSocket = (server) => {
                 ]
             });
             if (chat) {
-                const newChat = await Chat.findByIdAndUpdate(chat._id, { $push: { messages: createMessage._id }, $set: { lastMessage: createMessage._id } }, { new: true });
-                await User.findByIdAndUpdate(message.sender, { $push: { chats: newChat._id } });
-                await User.findByIdAndUpdate(message.receiver, { $push: { chats: newChat._id } });
+                //find chat already in user schema
+                const alreadyIn = await User.findOne({ chats: chat._id });
+                if (!alreadyIn) {
+                    const newChat = await Chat.findByIdAndUpdate(chat._id, { $push: { messages: createMessage._id }, $set: { lastMessage: createMessage._id } }, { new: true });
+                    await User.updateMany(
+                        { _id: { $in: [message.sender, message.receiver] } },
+                        { $push: { chats: newChat._id } }
+                    );
+                }
             } else {
                 await Chat.create({
                     user1: message.sender,
@@ -167,20 +178,20 @@ const setupSocket = (server) => {
     io.on('connection', (socket) => {
         const userId = socket.handshake.query.userId;
         if (userId) userSocketMap.set(userId, socket.id);
-        
+
         socket.on('send-message', sendMessage);
         socket.on('create-channel', createChannel);
         socket.on('send-channel-message', sendChannelMessage);
         socket.on('is_user_online', (userId, contactId) => {
             const contactSocketId = userSocketMap.get(contactId)
             const userSocketId = userSocketMap.get(userId)
-            if (contactSocketId!=undefined) {
+            if (contactSocketId != undefined) {
                 io.to(userSocketId).emit('user-online', true)
             } else {
                 io.to(userSocketId).emit('user-online', false)
             }
         });
-        
+
         socket.on('disconnect', () => disconnect(socket));
     });
 }
