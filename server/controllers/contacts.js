@@ -28,13 +28,10 @@ export const searchContacts = async (req, res) => {
 export const getContactsDM = async (req, res) => {
     try {
         const userId = req.user.id;
-        // Ensure userId is a valid ObjectId
-        const userObjectId = new mongoose.Types.ObjectId(userId);
-
         const contacts = await Chat.find({
             $or: [
                 { user1: userId },
-                { user2: userObjectId }
+                { user2: userId }
             ]
         })
             .sort({ updatedAt: -1 })
