@@ -17,7 +17,24 @@ const ContactList = ({ contacts, isChannel }) => {
         dispatch(setSelectChatData(contact));
         if (selectChatData && selectChatData?._id !== contact._id) dispatch(setSelectChatMessages([]));
     }
+    const formatMessageTime = (timestamp) => {
+        const msgTime = moment(timestamp);
+        const now = moment();
+        const oneDayAgo = now.clone().subtract(1, 'days');
+        const oneYearAgo = now.clone().subtract(1, 'years');
 
+        let formattedTime;
+
+        if (msgTime.isAfter(oneDayAgo)) {
+            formattedTime = msgTime.fromNow();
+        } else if (msgTime.isAfter(oneYearAgo)) {
+            formattedTime = msgTime.format('h:mm A');
+        } else {
+            formattedTime = msgTime.format('D MMM YYYY');
+        }
+
+        return formattedTime;
+    }
 
     return (
         <div className='mt-5'>
@@ -27,32 +44,34 @@ const ContactList = ({ contacts, isChannel }) => {
                     onClick={() => handleClick(contact)}
                     className={`my-1 cursor-pointer ${selectChatData?._id === contact._id ? 'bg-[#8417ff] text-[#8417ff]' : 'hover:bg-[#f1f1f111] hover:text-[#f1f1f111]'} transition-all duration-300`}
                 >
-                    <div className={`flex py-2 px-8 gap-5 items-center justify-start text-neutral-300 
+                    <div className={`flex py-2 px-4 gap-5 items-center justify-start text-neutral-300 
                         ${selectChatData?._id === contact?._id ? ' bg-[#8417ff]' : 'bg-[#2a2b33]'}`}>
                         {!isChannel && (
                             <div className='w-full flex'>
                                 <img src={contact?.image?.url} alt='profile' className='w-10 h-10 rounded-full border-2' />
                                 <div className='w-full flex justify-between'>
-                                    <div className='ml-3 flex flex-col items-start '>
+                                    <div className='w-full ml-3 flex flex-col items-start '>
                                         <div className='text-white text-lg font-semibold'>
                                             {
-                                                contact.firstName.length + contact.lastName.length > 10 ?
-                                                    (contact.firstName + " " + contact.lastName).slice(0, 10) + " ..." :
+                                                contact.firstName.length + contact.lastName.length > 20 ?
+                                                    (contact.firstName + " " + contact.lastName).slice(0, 20) + " ..." :
                                                     contact.firstName + " " + contact.lastName
                                             }
                                         </div>
-                                        <div className='text-[#E0E0E0] text-sm'>
-                                            {typeof dmContacts[index].lastMessage === 'string' ?
-                                                (dmContacts[index].lastMessage.length > 18 ?
-                                                    dmContacts[index].lastMessage.slice(0, 15) + ' ...' :
-                                                    dmContacts[index].lastMessage) :
-                                                <IoFolderOpenSharp />
-                                            }
+                                        <div className='w-full text-[#E0E0E0] text-sm flex justify-between '>
+                                            <p>{typeof dmContacts[index].lastMessage === 'string' ?
+                                                    (dmContacts[index].lastMessage.length > 18 ?
+                                                        dmContacts[index].lastMessage.slice(0, 15) + ' ...' :
+                                                        dmContacts[index].lastMessage) :
+                                                    <IoFolderOpenSharp />
+                                                }</p>
+                                            <div className='text-neutral-400 text-sm flex items-center'>
+                                                {formatMessageTime(dmContacts[index].msgTime)}
+                                            </div>
+
                                         </div>
                                     </div>
-                                    <div className='text-neutral-400 text-sm flex items-center'>
-                                        {moment(dmContacts[index].msgTime).format('h:mm A')}
-                                    </div>
+
                                 </div>
                             </div>
                         )}
@@ -69,10 +88,16 @@ const ContactList = ({ contacts, isChannel }) => {
                                         {contact.lastMsg && contact.lastMsgBy && (
                                             <div className='w-full flex items-center justify-between text-gray-400 text-sm '>
                                                 <div>
-                                                    <span className='font-semibold'>{contact.lastMsgBy.firstName} :</span> {contact.lastMsg}
+                                                    <span className='font-semibold flex items-center'>{contact.lastMsgBy.firstName + " :"}{
+                                                        typeof contact?.lastMsg === 'string' ?
+                                                            (contact.lastMsg.length > 18 ?
+                                                                " " + contact.lastMsg.slice(0, 15) + ' ...' :
+                                                                contact.lastMsg) :
+                                                            <IoFolderOpenSharp className='w-10 h-4' />
+                                                    }</span>
                                                 </div>
                                                 <div className='ml-1 text-xs'>
-                                                    {moment(contact.updatedAt).fromNow()}
+                                                    {formatMessageTime(contact.updatedAt)}
                                                 </div>
                                             </div>
                                         )}
