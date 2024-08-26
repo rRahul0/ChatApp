@@ -28,6 +28,7 @@
     "concurrently": "^8.2.2",
     "cryptr": "^6.3.0",
     "emoji-picker-react": "^4.11.1",
+    "file-download": "^0.1.2",
     "js-file-download": "^0.4.12",
     "lucide-react": "^0.408.0",
     "moment": "^2.30.1",

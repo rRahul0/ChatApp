@@ -55,7 +55,25 @@ const MessageContainer = () => {
     }, [selectChatMessages]);
 
     const checkIfImage = (name) => name.match(/\.(jpeg|jpg|gif|png|bmp|tiff|tif|webp|svg|ico|heic|heif)$/) != null;
+    const formatMessageTime = (timestamp) => {
+        const msgTime = moment(timestamp);
+        // console.log(timestamp);
+        const now = moment();
+        const oneDayAgo = now.clone().subtract(1, 'days');
+        const oneYearAgo = now.clone().subtract(1, 'years');
 
+        let formattedTime;
+
+        if (msgTime.isAfter(oneDayAgo)) {
+            formattedTime = msgTime.fromNow();
+        } else if (msgTime.isAfter(oneYearAgo)) {
+            formattedTime = msgTime.format('h:mm A');
+        } else {
+            formattedTime = msgTime.format('D MMM YYYY');
+        }
+
+        return formattedTime;
+    }
     const renderContactMessage = (message) => {
         return (
             <>
@@ -104,7 +122,7 @@ const MessageContainer = () => {
                         </div>
                     )}
                     <div className="text-xs text-gray-600">
-                        {moment(message.timestamp).format("LT")}
+                        {formatMessageTime(message.createdAt)}
                     </div>
                 </div>
 
@@ -200,12 +218,12 @@ const MessageContainer = () => {
                             </AvatarFallback>
                         </Avatar>
                         <span className="text-sm text-white/60">{message.sender.firstName} {message.sender.lastName}</span>
-                        <span className="text-xs text-white/60">{moment(message.timestamp).format("LT")}</span>
+                        <span className="text-xs text-white/60">{formatMessageTime(message.createdAt)}</span>
 
                     </div>
                 ) : (
                     <div className="text-xs mt-1 text-white/60">
-                        {moment(message.timestamp).format("LT")}
+                        {formatMessageTime(message.createdAt)}
                     </div>
                 )
                 }
