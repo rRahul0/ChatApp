@@ -43,6 +43,7 @@ const setupSocket = (server) => {
                     { user1: message.receiver._id, user2: message.sender._id }
                 ]
             });
+            await Chat.findByIdAndUpdate(chat._id, { $push: { messages: messageData._id }, $set: { lastMessage: messageData._id } });
             if (chat) {
                 const alreadyIn = await User.findOne({ chats: chat._id });
                 if (!alreadyIn) {
@@ -80,6 +81,7 @@ const setupSocket = (server) => {
                     { user1: message.receiver, user2: message.sender }
                 ]
             });
+            await Chat.findByIdAndUpdate(chat._id, { $push: { messages: createMessage._id }, $set: { lastMessage: createMessage._id } });
             if (chat) {
                 //find chat already in user schema
                 const alreadyIn = await User.findOne({ chats: chat._id });
