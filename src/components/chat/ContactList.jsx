@@ -45,7 +45,7 @@ const ContactList = ({ contacts, isChannel }) => {
                     onClick={() => handleClick(contact)}
                     className={`my-1 cursor-pointer ${selectChatData?._id === contact._id ? 'bg-[#8417ff] text-[#8417ff]' : 'hover:bg-[#f1f1f111] hover:text-[#f1f1f111]'} transition-all duration-300`}
                 >
-                    <div className={`flex py-2 px-4 gap-5 items-center justify-start text-neutral-300 
+                    <div className={`w-full flex py-2 px-4 gap-5 items-center justify-start text-neutral-300 
                         ${selectChatData?._id === contact?._id ? ' bg-[#8417ff]' : 'bg-[#2a2b33]'}`}>
                         {!isChannel && (
                             <div className='w-full flex'>
@@ -90,7 +90,7 @@ const ContactList = ({ contacts, isChannel }) => {
                                         {contact.lastMsg && contact.lastMsgBy && (
                                             <div className='w-full flex items-center justify-between text-gray-400 text-sm '>
                                                 <div>
-                                                    <span className='font-semibold flex items-center'>{contact.lastMsgBy.firstName + " :"}{
+                                                    <span className='font-semibold flex items-center'>{contact.lastMsgBy.firstName + " : "}{
                                                         typeof contact?.lastMsg === 'string' ?
                                                             (contact.lastMsg.length > 18 ?
                                                                 " " + contact.lastMsg.slice(0, 15) + ' ...' :
