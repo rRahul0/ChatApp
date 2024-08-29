@@ -1,18 +1,25 @@
 import React, { useRef, useState } from 'react';
 import { GrAttachment } from 'react-icons/gr';
 import { IoSend } from 'react-icons/io5';
+import { BiLoaderAlt } from "react-icons/bi";
+import { RiLoader4Fill } from "react-icons/ri";
 import { RiEmojiStickerLine } from 'react-icons/ri';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+
 import EmojiPicker from 'emoji-picker-react';
 import useOnClickOutside from '@/hooks/useOnClickOutside';
 import { sendFileMessage as sendFile } from '../../services/operations/messagesApi';
 import { useSocket } from '../../context/SocketContext';
+import { setUpload } from '../../slices/chatSlice';
 
+import "../../App.css";
 const MessageBar = () => {
     const socket = useSocket();
     const { user } = useSelector(state => state.profile);
     const { token } = useSelector(state => state.auth);
-    const { selectChatType, selectChatData } = useSelector(state => state.chat);
+    const { selectChatType, selectChatData, isUpload } = useSelector(state => state.chat);
+
+    const dispatch = useDispatch();
     const [message, setMessage] = useState("");
     const emojiRef = useRef(null);
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
@@ -21,6 +28,7 @@ const MessageBar = () => {
     const handleSendMessage = async () => {
         let messagePayload
         if (selectChatType === "contact") {
+            if (!message) return;
             messagePayload = {
                 sender: user._id,
                 content: message,
@@ -60,10 +68,14 @@ const MessageBar = () => {
 
             // console.log(response);
             if (selectChatType === "contact") {
+                dispatch(setUpload(true));
                 const response = await sendFile(formData, token);
                 socket.emit("send-message", response);
+                dispatch(setUpload(false));
+
             } else {
                 //here also we need to send the channel id
+                dispatch(setUpload(true));
                 const response = await sendFile(formData, token);
                 // console.log(response);
                 response.channelId = selectChatData._id;
@@ -72,6 +84,8 @@ const MessageBar = () => {
                 response.receiver = selectChatData._id;
                 response.content = response.file;
                 socket.emit("send-channel-message", response);
+                dispatch(setUpload(false));
+
             }
             // console.log(response);
         } catch (error) {
@@ -130,8 +144,12 @@ const MessageBar = () => {
             <button
                 className="max-sm:max-w-[20%] bg-[#8417ff] rounded-full flex items-center justify-center p-3 sm:p-5 hover:bg-[#741bda] focus:bg-[#741bda] focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
                 onClick={handleSendMessage}
+                disabled={isUpload}
             >
+            { isUpload?
+                <BiLoaderAlt className='text-2xl text-neutral-300 loader font-extrabold'/>:
                 <IoSend className="text-2xl text-neutral-300" />
+            }
             </button>
         </div>
     );

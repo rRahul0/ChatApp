@@ -18,13 +18,20 @@ const initialState = {
     dmContacts: [],
     channels: [],
     notifications:[],
+    isUpload: false,
+    isDownload: false,
 }
 
 const chatSlice = createSlice({
     name: 'chat',
     initialState,
     reducers: {
-
+        setUpload(state, action) {
+            state.isUpload = action.payload;
+        },
+        setDownload(state, action) {
+            state.isDownload = action.payload;
+        },
         setOnlineUsers(state, action) {
             state.isOnline = action.payload;
         },
@@ -64,11 +71,12 @@ const chatSlice = createSlice({
         },
         updateDmContacts(state, action) {
             const { message, userId } = action.payload;
+            // console.log(message)
             const fromId = message.sender._id === userId ? message.receiver._id : message.sender._id;
             const index = state.dmContacts.findIndex(contact => contact._id.toString() === fromId.toString());
             if (index !== -1) {
                 const contact = state.dmContacts[index];
-                contact.lastMessage = message.content?message.content: null;
+                contact.lastMessage = message.content?message.content: {"file":"file"};
                 contact.msgTime = message.updatedAt;
             }
         },
@@ -144,5 +152,7 @@ export const {
     updateChannel,
     sortContacts,
     setOnlineUsers,
+    setUpload,
+    setDownload,
 } = chatSlice.actions;
 export default chatSlice.reducer;
