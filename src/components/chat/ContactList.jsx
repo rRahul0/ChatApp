@@ -46,7 +46,7 @@ const ContactList = ({ contacts, isChannel }) => {
                     className={`my-1 cursor-pointer ${selectChatData?._id === contact._id ? 'bg-[#8417ff] text-[#8417ff]' : 'hover:bg-[#f1f1f111] hover:text-[#f1f1f111]'} transition-all duration-300`}
                 >
                     <div className={`w-full flex py-2 px-4 gap-5 items-center justify-start text-neutral-300 
-                        ${selectChatData?._id === contact?._id ? ' bg-[#8417ff]' : 'bg-[#2a2b33]'}`}>
+                        ${selectChatData?._id === contact?._id ? ' bg-[#5d1da6]' : 'bg-[#2a2b33]'}`}>
                         {!isChannel && (
                             <div className='w-full flex'>
                                 <img src={contact?.image?.url} alt='profile' className='w-10 h-10 rounded-full border-2' />
