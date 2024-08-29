@@ -33,7 +33,7 @@ const ProfileInfo = () => {
                 <div className="flex gap-3 items-center justify-center ">
                     <div 
                     onClick={setOpenProfileModal}
-                    className="w-12 h-12 relative text-white cursor-pointer">
+                    className="w-12 md:w-16 h-12 relative text-white cursor-pointer rounded-full">
                         <img
                             src={user?.image?.url}
                             alt="mcnbhdf"
