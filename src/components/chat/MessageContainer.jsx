@@ -1,21 +1,22 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect, useRef } from "react";
 import moment from "moment";
-import fileDownload from "js-file-download";
-import { setSelectChatMessages } from "../../slices/chatSlice";
+import { setSelectChatMessages, setDownload } from "../../slices/chatSlice";
 import { getAllMessages, getChannelMessages } from "../../services/operations/messagesApi";
 import { ImFolderOpen } from "react-icons/im";
 import { IoMdDownload } from "react-icons/io";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import '../scroll.css';
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+
+import '../scroll.css';
+import '../../App.css';
 
 const MessageContainer = () => {
     const scrollRef = useRef(null);
     const dispatch = useDispatch();
     const { user } = useSelector(state => state.profile);
     const { token } = useSelector(state => state.auth);
-    const { selectChatType, selectChatData, selectChatMessages } = useSelector(state => state.chat);
+    const { selectChatType, selectChatData, selectChatMessages, isDownload } = useSelector(state => state.chat);
 
     const [showImage, setShowImage] = useState(false);
     const [image, setImage] = useState({
@@ -54,6 +55,17 @@ const MessageContainer = () => {
         }
     }, [selectChatMessages]);
 
+    const fileDownload = async(url, name) => {
+        const urlBlob = window.URL.createObjectURL(await fetch(url).then(r => r.blob()));
+        const aTag = document.createElement('a');
+        aTag.href = urlBlob;
+        aTag.setAttribute('download', name);
+        document.body.appendChild(aTag);
+        aTag.click();
+        aTag.remove();
+        window.URL.revokeObjectURL(urlBlob);
+    }
+
     const checkIfImage = (name) => name.match(/\.(jpeg|jpg|gif|png|bmp|tiff|tif|webp|svg|ico|heic|heif)$/) != null;
     const formatMessageTime = (timestamp) => {
         const msgTime = moment(timestamp);
@@ -74,6 +86,8 @@ const MessageContainer = () => {
 
         return formattedTime;
     }
+
+    // console.log(selectChatMessages);
     const renderContactMessage = (message) => {
         return (
             <>
@@ -93,8 +107,8 @@ const MessageContainer = () => {
                             } border inline-block py-1 px-3 rounded my-1 max-w-[60%] max-sm:max-w-[90%] break-words `}>
                             {checkIfImage(message.fileUrl.name) ?
                                 <div className="cursor-pointer">
-                                    <img src={message.fileUrl.url}
-                                        alt={message.fileUrl.name}
+                                    <img src={message?.fileUrl?.url}
+                                        alt={message?.fileUrl?.name}
                                         height={300}
                                         width={300}
                                         className="object-fit"
@@ -114,9 +128,18 @@ const MessageContainer = () => {
                                     }</span>
                                     <span
                                         className="bg-black/20 p-3 text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
-                                        onClick={() => fileDownload(message.fileUrl.url, message.fileUrl.name)}
-                                    >
+                                        onClick={() => {
+                                            dispatch(setDownload(true));
+                                            fileDownload(message.fileUrl.url, message.fileUrl.name)
+                                            dispatch(setDownload(false));
+                                        }}
+                                        disabled={isDownload}
+                                    >{
+                                        isDownload ? 
+                                        <BiLoaderAlt className='text-2xl text-neutral-300 loader font-extrabold'/> : 
                                         <IoMdDownload />
+                                    }
+                                        
                                     </span>
                                 </div>}
                         </div>
@@ -134,8 +157,17 @@ const MessageContainer = () => {
                                 <span>{image.name}</span>
                                 <span
                                     className="bg-slate-700 p-2 text-2xl rounded-full hover:bg-[#8417ff] cursor-pointer transition-all duration-300"
-                                    onClick={() => fileDownload(image.url, image.name)}
-                                ><IoMdDownload /> </span>
+                                    onClick={() => {
+                                        dispatch(setDownload(true));
+                                        fileDownload(image.url, image.name)
+                                        dispatch(setDownload(false));
+                                    }}
+                                    disabled={isDownload}
+                                >{
+                                    isDownload ? 
+                                    <BiLoaderAlt className='text-2xl text-neutral-300 loader font-extrabold'/> : 
+                                    <IoMdDownload />
+                                } </span>
                             </DialogTitle>
                             {/* <DialogDescription>
                                 {moment(message.timestamp).format("LL")}
@@ -195,9 +227,17 @@ const MessageContainer = () => {
                                 }</span>
                                 <span
                                     className="bg-black/20 p-3 text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
-                                    onClick={() => fileDownload(message.fileUrl.url, message.fileUrl.name)}
-                                >
+                                    onClick={() => {
+                                        dispatch(setDownload(true));
+                                        fileDownload(message.fileUrl.url, message.fileUrl.name);
+                                        dispatch(setDownload(false));
+                                    }}
+                                    disabled={isDownload}
+                                >{
+                                    isDownload ? 
+                                    <BiLoaderAlt className='text-2xl text-neutral-300 loader font-extrabold'/> : 
                                     <IoMdDownload />
+                                }
                                 </span>
                             </div>}
                     </div>

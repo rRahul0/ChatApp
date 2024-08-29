@@ -35,6 +35,7 @@ const ContactList = ({ contacts, isChannel }) => {
 
         return formattedTime;
     }
+    // console.log(contacts)
 
     return (
         <div className='mt-5'>
@@ -59,14 +60,15 @@ const ContactList = ({ contacts, isChannel }) => {
                                             }
                                         </div>
                                         <div className='w-full text-[#E0E0E0] text-sm flex justify-between '>
-                                            <p>{typeof dmContacts[index].lastMessage === 'string' ?
+                                            <p>{dmContacts[index]?.lastMessage ? (
+                                                typeof dmContacts[index].lastMessage === 'string' ?
                                                     (dmContacts[index].lastMessage.length > 18 ?
                                                         dmContacts[index].lastMessage.slice(0, 15) + ' ...' :
                                                         dmContacts[index].lastMessage) :
                                                     <IoFolderOpenSharp />
-                                                }</p>
+                                            ) : ''}</p>
                                             <div className='text-neutral-400 text-sm flex items-center'>
-                                                {formatMessageTime(dmContacts[index].msgTime)}
+                                                {dmContacts[index]?.lastMessage && formatMessageTime(dmContacts[index].msgTime)}
                                             </div>
 
                                         </div>
