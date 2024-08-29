@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
@@ -15,11 +15,22 @@ const NewDm = () => {
     const dispatch = useDispatch();
     const [openNewContactModal, setOpenNewContactModal] = useState(false);
     const [searchedContact, setSearchedContact] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+
     const searchContact = async (item) => {
-        //it has bug when we search for empty string and pressing backspace
         const user = await searchContacts(item, token);
         setSearchedContact(user);
     }
+
+    //Debounce Effect
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (searchTerm) searchContact(searchTerm);
+            else setSearchedContact([]);
+        }, 300);
+        return () => clearTimeout(handler);
+    }, [searchTerm]);
+
     const selectNewContact = async (contact) => {
         setOpenNewContactModal(false);
 
@@ -60,7 +71,7 @@ const NewDm = () => {
                         <Input
                             placeholder="Search for a contact"
                             className="bg-[#2c2e3b] border-none p-6 rounded-lg"
-                            onChange={e => searchContact(e.target.value)}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
                     <ScrollArea className="h-[250px] flex-1 mt-5">
