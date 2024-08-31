@@ -75,13 +75,13 @@ const setupSocket = (server) => {
 
             messageData = await createMessage.populate('sender', "id email firstName lastName image")
             messageData = await createMessage.populate('receiver', "id email firstName lastName image")
-            console.log(message)
             const chat = await Chat.findOne({
                 $or: [
                     { user1: message.sender, user2: message.receiver },
                     { user1: message.receiver, user2: message.sender }
                 ]
             });
+            await Chat.findByIdAndUpdate(chat._id, { $push: { messages: createMessage._id }, $set: { lastMessage: createMessage._id } });
             if (chat) {
                 //find chat already in user schema
                 const alreadyIn = await User.findOne({ chats: chat._id });
@@ -110,7 +110,7 @@ const setupSocket = (server) => {
         if (senderSocketId) {
             io.to(senderSocketId).emit('receive-message', messageData);
         }
-    }  
+    }
 
     const createChannel = async (data) => {
         const { channelName, members, admin, token } = data;
@@ -177,10 +177,6 @@ const setupSocket = (server) => {
             }
         }
     }
-    const createCall = (data) => {
-        const user2SocketId = userSocketMap.get(data.userId);
-        io.to(user2SocketId).emit('receive-call', data);
-    }
     io.on('connection', (socket) => {
         const userId = socket.handshake.query.userId;
         if (userId) userSocketMap.set(userId, socket.id);
@@ -197,7 +193,7 @@ const setupSocket = (server) => {
                 io.to(userSocketId).emit('user-online', false)
             }
         });
-        socket.on("create-call", createCall);
+
         socket.on('disconnect', () => disconnect(socket));
     });
 }

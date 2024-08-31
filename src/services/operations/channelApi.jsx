@@ -35,7 +35,7 @@ export const getChannels = async (token) => {
             throw new Error(data.message)
 
         const { channels } = response.data;
-        // console.log("GET CHANNELS API RESPONSE............", channels);
+        console.log("GET CHANNELS API RESPONSE............", channels);
         
         return channels
     }
