@@ -65,10 +65,6 @@ export const SocketProvider = ({ children }) => {
             socket.current.on("user-online", (isOnline) => {
                 dispatch(setOnlineUsers(isOnline));
             });
-
-            socket.current.on("receive-call", (data) => {
-                console.log("Call received", data);
-            });
             return () => {
                 if (socket.current) {
                     socket.current.disconnect();
