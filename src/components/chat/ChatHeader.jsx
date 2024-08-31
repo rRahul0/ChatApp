@@ -3,7 +3,7 @@ import { RiCloseFill } from "react-icons/ri";
 import { useSelector, useDispatch } from "react-redux";
 import { closeChat } from "@/slices/chatSlice";
 import { useSocket } from "../../context/SocketContext";
-
+import Video from "./videoccall/video";
 const ChatHeader = () => {
     const { selectChatData, selectChatType, isOnline } = useSelector(state => state.chat);
     const dispatch = useDispatch();
@@ -46,6 +46,7 @@ const ChatHeader = () => {
                     </div>
                 </div>
                 <div className="flex items-center justify-center gap-5 ">
+                    <Video data={selectChatData}/>
                     <button
                         className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all "
                         onClick={() => dispatch(closeChat())}
