@@ -84,8 +84,8 @@ const setupSocket = (server) => {
             if (chat) {
                 //find chat already in user schema
                 const alreadyIn = await User.findOne({ chats: chat._id });
+                const newChat = await Chat.findByIdAndUpdate(chat._id, { $push: { messages: createMessage._id }, $set: { lastMessage: createMessage._id } }, { new: true });
                 if (!alreadyIn) {
-                    const newChat = await Chat.findByIdAndUpdate(chat._id, { $push: { messages: createMessage._id }, $set: { lastMessage: createMessage._id } }, { new: true });
                     await User.updateMany(
                         { _id: { $in: [message.sender, message.receiver] } },
                         { $push: { chats: newChat._id } }
