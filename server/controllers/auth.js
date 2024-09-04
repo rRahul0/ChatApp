@@ -1,13 +1,63 @@
 import User from "../models/User.js";
+import OTP from "../models/otp.js";
+import { mailSender } from "../utils/mailSender.js";
+import { passwordResetTemplate } from "../mailTemplets/passwordresetTemplet.js";
+
+import crypto from "crypto";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from 'dotenv';
+import otpGenerator from "otp-generator";
 dotenv.config();
 
+export const sendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const checkuserpresent = await User.findOne({ email });
+    if (checkuserpresent) {
+      return res.status(400).json({
+        success: false,
+        message: "User already exist",
+      });
+    }
+
+    // if no generate otp
+    let otp = otpGenerator.generate(4, {
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false,
+    });
+
+    // uniqueness
+    let result = await OTP.findOne({ otp });
+    while (result) {
+      otp = otpGenerator.generate(4, {
+        upperCaseAlphabets: false,
+        lowerCaseAlphabets: false,
+        specialChars: false,
+      });
+
+      result = await OTP.findOne({ otp });
+    }
+
+    //create DB entry
+    const otpBody = await OTP.create({ email: email, otp: otp });
+
+    //send response
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent sucessfully",
+      otp: otpBody.otp,
+    });
+  } catch (error) {
+    console.log(error.message);
+  }
+}
 export const signUp = async (req, res, next) => {
   try {
-    const { email, password, firstName, lastName } = req.body;
-    if (!email || !password || !firstName || !lastName)
+    const { email, password, firstName, lastName, otp } = req.body;
+    if (!email || !password || !firstName || !lastName || !otp)
       return res.status(400).send("Please fill all the fields");
 
     const isExistingUser = await User.findOne({ email });
@@ -16,11 +66,25 @@ export const signUp = async (req, res, next) => {
       message: "User already exist",
     });
 
-    //cloudinary image upload
-    // image = {
-    //     url: url,
-    //     public_id: public_id
-    // }
+    //find most recent otp
+    const recentOTP = await OTP.find({ email })
+      .sort({ createdAt: -1 })
+      .limit(-1);
+
+    //validate otp
+    if (otp !== recentOTP[0].otp) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP doesn't matched",
+        // recentOTP,
+        // otp,
+      });
+    } else if (recentOTP.length == 0) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP not found",
+      });
+    }
 
     //hashpassword
     const salt = await bcrypt.genSalt(10);
@@ -100,3 +164,89 @@ export const login = async (req, res) => {
     });
   }
 };
+
+export const resetPasswordToken = async (req, res) => {
+  try {
+    const email = req.body.email;
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      return res.json({
+        success: false,
+        message: `This Email: ${email} is not Registered With Us Enter a Valid Email `,
+      });
+    }
+    const token = crypto.randomBytes(20).toString("hex");
+
+    const updatedDetails = await User.findOneAndUpdate(
+      { email: email },
+      {
+        token: token,
+        resetPasswordExpires: Date.now() + 5 * 60 * 1000,
+      },
+      { new: true }
+    );
+
+    const url = `${process.env.FRONTEND_URL}/update-password/${token}`;
+
+    await mailSender(
+      email,
+      "Password Reset",
+      passwordResetTemplate(url)
+    );
+    return res.status(200).json({
+      success: true,
+      message:
+        "Email Sent Successfully, Please Check Your Email to Continue Further",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: error.message,
+      success: false,
+      message: `Some Error in Sending the Reset Message`,
+    });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+
+  try {
+      const { password, confirmPassword, token } = req.body;
+      if (confirmPassword !== password) {
+          return res.json({
+              success: false,
+              message: "Password and Confirm Password Does not Match",
+          });
+      }
+      const userDetails = await User.findOne({ token: token });
+      if (!userDetails) {
+          return res.json({
+              success: false,
+              message: "Token is Invalid",
+          });
+      }
+      if (!(userDetails.resetPasswordExpires > Date.now())) {
+          return res.status(403).json({
+              success: false,
+              message: `Token is Expired, Please Regenerate Your Token`,
+          });
+      }
+      const encryptedPassword = await bcrypt.hash(password, 10);
+      
+      await User.findOneAndUpdate(
+          { token: token },
+          { password: encryptedPassword },
+          { new: true }
+      );
+      res.status(200).json({
+          success: true,
+          message: `Password Reset Successful`,
+      });
+  }
+  catch (error) {
+      return res.status(500).json({
+          error: error.message,
+          success: false,
+          message: `Some Error in Updating`,
+      })
+  }
+}

@@ -4,6 +4,9 @@ const BASE_URL = import.meta.env.VITE_BACKEND_URL + '/api/v1'
 export const AuthEndpoints = {
     LOGIN_API: BASE_URL + "/auth/login",
     SIGNUP_API: BASE_URL + "/auth/signup",
+    SENDOTP_API: BASE_URL + "/auth/sendotp",
+    RESETPASSTOKEN_API: BASE_URL + "/auth/reset-password-token",
+    RESETPASSWORD_API: BASE_URL + "/auth/reset-password",
 }
 
 export const ContactEndpoints = {
