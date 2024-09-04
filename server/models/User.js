@@ -39,6 +39,12 @@ const userSchema = new mongoose.Schema({
       ref: "Channel",
     },
   ],
-}, {timestamps: true});
+  token: {
+    type: String,
+  },
+  resetPasswordExpires: {
+    type: Date,
+  },
+}, { timestamps: true });
 
 export default mongoose.model("User", userSchema);
