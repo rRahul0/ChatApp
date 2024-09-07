@@ -104,6 +104,7 @@ function LoginForm({ admin }) {
       </button>
       <button
         onClick={() => {
+          console.log("GUEST LOGIN", guestEmail, guestPassword)
           dispatch(login(guestEmail, guestPassword, navigate))
         }}
         className="mt-2 rounded-[8px] bg-[#5c4092] text-xl py-[8px] px-[12px] font-medium text-richblack-900"
