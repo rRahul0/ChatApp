@@ -1,9 +1,14 @@
+
+
 import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 
 import { login } from "../../services/operations/authApi";
+
+const guestEmail = import.meta.env.VITE_GUEST_EMAIL
+const guestPassword = import.meta.env.VITE_GUEST_PASSWORD
 
 function LoginForm({ admin }) {
   const navigate = useNavigate()
@@ -96,6 +101,14 @@ function LoginForm({ admin }) {
         className="mt-6 rounded-[8px] bg-[#8417ff] text-xl py-[8px] px-[12px] font-medium text-richblack-900"
       >
         Sign In
+      </button>
+      <button
+        onClick={() => {
+          dispatch(login(guestEmail, guestPassword, navigate))
+        }}
+        className="mt-2 rounded-[8px] bg-[#5c4092] text-xl py-[8px] px-[12px] font-medium text-richblack-900"
+      >
+        Login as Guest
       </button>
       <p>Don't have account? <Link to="/signup" className="text-blue-500">SignUp</Link></p>
 
