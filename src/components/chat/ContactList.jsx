@@ -29,7 +29,7 @@ const ContactList = ({ contacts, isChannel }) => {
         if (msgTime.isAfter(oneDayAgo)) {
             formattedTime = msgTime.fromNow();
         } else if (msgTime.isAfter(oneYearAgo)) {
-            formattedTime = msgTime.format('h:mm A');
+            formattedTime = msgTime.format('D MMM');
         } else {
             formattedTime = msgTime.format('D MMM YYYY');
         }
