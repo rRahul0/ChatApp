@@ -69,23 +69,31 @@ const MessageContainer = () => {
     const checkIfImage = (name) => name.match(/\.(jpeg|jpg|gif|png|bmp|tiff|tif|webp|svg|ico|heic|heif)$/) != null;
     const formatMessageTime = (timestamp) => {
         const msgTime = moment(timestamp);
-        // console.log(timestamp);
         const now = moment();
+    
+        let formattedTime;
+    
+        const secondsAgo = now.diff(msgTime, 'seconds');
+        const minutesAgo = now.diff(msgTime, 'minutes');
+        const hoursAgo = now.diff(msgTime, 'hours');
         const oneDayAgo = now.clone().subtract(1, 'days');
         const oneYearAgo = now.clone().subtract(1, 'years');
-
-        let formattedTime;
-
-        if (msgTime.isAfter(oneDayAgo)) {
-            formattedTime = msgTime.fromNow();
+    
+        if ( Math.abs(secondsAgo) < 60) {
+            formattedTime = `a few seconds ago`;
+        } else if (Math.abs(minutesAgo) < 60) {
+            formattedTime = `${Math.abs(minutesAgo)} minutes ago`;
+        } else if (hoursAgo < 24 && msgTime.isAfter(oneDayAgo)) {
+            formattedTime = `${Math.abs(hoursAgo)} hours ago`;
         } else if (msgTime.isAfter(oneYearAgo)) {
-            formattedTime = msgTime.format('h:mm A');
+            formattedTime = msgTime.format('D MMM');
         } else {
-            formattedTime = msgTime.format('D MMM YYYY');
+            formattedTime = msgTime.format('D-MM-YYYY');
         }
-
+    
         return formattedTime;
-    }
+    };
+    
 
     // console.log(selectChatMessages);
     const renderContactMessage = (message) => {
@@ -97,7 +105,7 @@ const MessageContainer = () => {
                             "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50" :
                             "bg-[#2a2b33]/5 text-white/80 border-white/20"
                             } border inline-block py-1 px-3 rounded my-1 max-w-[50%] break-words`}>
-                            {message.content}
+                            {message.content.length > 20 ? `${message.content.substring(0, 15)}   ...` : message.content}
                         </div>
                     )}
                     {message.messageType === "file" && (
@@ -196,7 +204,7 @@ const MessageContainer = () => {
                         "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50" :
                         "bg-[#2a2b33]/5 text-white/80 border-white/20"
                         } border inline-block py-1 px-3 rounded my-1 max-w-[50%] break-words ml-9`}>
-                        {message.content}
+                        {message.content.length > 15 ? `${message.content.substring(0, 15)}   ...` : message.content}
                     </div>
                 )}
                 {message.messageType === "file" && (
@@ -276,7 +284,8 @@ const MessageContainer = () => {
         // console.log(typeof new Date().getDate())
         // const time = new Date().getDate()
         return selectChatMessages?.map((message) => {
-            const date = moment(message.timestamp).format("YYYY-MM-DD");
+            const date = moment(message.updatedAt).format("YYYY-MM-DD");
+            console.log(message)
             const showDate = date !== lastDate;
             lastDate = date;
             return (
@@ -284,8 +293,8 @@ const MessageContainer = () => {
                     {showDate && (
                         <div className="text-center text-gray-500 my-2">
                             {/* {console.log(time===Number(message.timestamp.split('T')[0].split("-")[2]))} */}
-                            {/* {time == message.timestamp.split('T')[0].split("-")[2] ? "": moment(message.timestamp).format('LL')} */}
-                            {moment(message.timestamp).format("LL")}
+                            {/* {time == message?.timestamp.split('T')[0].split("-")[2] ? "": moment(message?.timestamp).format('LL')} */}
+                            {moment(message.updatedAt).format("LL")}
                         </div>
                     )}
                     {selectChatType === "contact" && renderContactMessage(message)}
