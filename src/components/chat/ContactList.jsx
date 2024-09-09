@@ -19,33 +19,21 @@ const ContactList = ({ contacts, isChannel }) => {
     }
     const formatMessageTime = (timestamp) => {
         const msgTime = moment(timestamp);
+        // console.log(timestamp);
         const now = moment();
-        
+        const oneDayAgo = now.clone().subtract(1, 'days');
+        const oneYearAgo = now.clone().subtract(1, 'years');
+
         let formattedTime;
-        
-        const secondsAgo = now.diff(msgTime, 'seconds');
-        const minutesAgo = now.diff(msgTime, 'minutes');
-        const hoursAgo = now.diff(msgTime, 'hours');
-        const daysAgo = now.diff(msgTime, 'days');
-        const weeksAgo = now.diff(msgTime, 'weeks');
-        const yearsAgo = now.diff(msgTime, 'years');
-    
-        if (secondsAgo < 60) {
-            formattedTime = `a few seconds ago`;
-        } else if (minutesAgo < 60) {
-            formattedTime = `${minutesAgo} minutes ago`;
-        } else if (hoursAgo < 24) {
-            formattedTime = `${hoursAgo} hours ago`;
-        } else if (daysAgo < 7) {
-            formattedTime = msgTime.format('dddd'); // Day of the week
-        } else if (weeksAgo < 5) {
-            formattedTime = msgTime.format('D MMM');
-        } else if (yearsAgo < 1) {
-            formattedTime = msgTime.format('D MMM');
+
+        if (msgTime.isAfter(oneDayAgo)) {
+            formattedTime = msgTime.fromNow();
+        } else if (msgTime.isAfter(oneYearAgo)) {
+            formattedTime = msgTime.format('h:mm A');
         } else {
-            formattedTime = msgTime.format('DD/MM/YYYY');
+            formattedTime = msgTime.format('D MMM YYYY');
         }
-        
+
         return formattedTime;
     }
     
