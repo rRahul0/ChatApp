@@ -22,7 +22,7 @@ const ContactList = ({ contacts, isChannel }) => {
         const now = moment();
         
         let formattedTime;
-    
+        
         const secondsAgo = now.diff(msgTime, 'seconds');
         const minutesAgo = now.diff(msgTime, 'minutes');
         const hoursAgo = now.diff(msgTime, 'hours');
@@ -31,22 +31,24 @@ const ContactList = ({ contacts, isChannel }) => {
         const yearsAgo = now.diff(msgTime, 'years');
     
         if (secondsAgo < 60) {
-            formattedTime = `${secondsAgo} seconds ago`;
+            formattedTime = `a few seconds ago`;
         } else if (minutesAgo < 60) {
             formattedTime = `${minutesAgo} minutes ago`;
-        } else if (hoursAgo < 24 && msgTime.isSame(now, 'day')) {
+        } else if (hoursAgo < 24) {
             formattedTime = `${hoursAgo} hours ago`;
-        } else if (weeksAgo < 1 && msgTime.isSame(now, 'week')) {
+        } else if (daysAgo < 7) {
             formattedTime = msgTime.format('dddd'); // Day of the week
-        } else if (daysAgo < 31 && msgTime.isSame(now, 'month')) {
+        } else if (weeksAgo < 5) {
             formattedTime = msgTime.format('D MMM');
-        } else if (yearsAgo < 1 && msgTime.isSame(now, 'year')) {
+        } else if (yearsAgo < 1) {
             formattedTime = msgTime.format('D MMM');
         } else {
             formattedTime = msgTime.format('DD/MM/YYYY');
         }
+        
         return formattedTime;
     }
+    
     
     // console.log(contacts)
 
