@@ -20,21 +20,34 @@ const ContactList = ({ contacts, isChannel }) => {
     const formatMessageTime = (timestamp) => {
         const msgTime = moment(timestamp);
         const now = moment();
-        const oneDayAgo = now.clone().subtract(1, 'days');
-        const oneYearAgo = now.clone().subtract(1, 'years');
-
+        
         let formattedTime;
-
-        if (msgTime.isAfter(oneDayAgo)) {
-            formattedTime = msgTime.fromNow();
-        } else if (msgTime.isAfter(oneYearAgo)) {
-            formattedTime = msgTime.format('h:mm A');
+    
+        const secondsAgo = now.diff(msgTime, 'seconds');
+        const minutesAgo = now.diff(msgTime, 'minutes');
+        const hoursAgo = now.diff(msgTime, 'hours');
+        const daysAgo = now.diff(msgTime, 'days');
+        const weeksAgo = now.diff(msgTime, 'weeks');
+        const yearsAgo = now.diff(msgTime, 'years');
+    
+        if (secondsAgo < 60) {
+            formattedTime = `${secondsAgo} seconds ago`;
+        } else if (minutesAgo < 60) {
+            formattedTime = `${minutesAgo} minutes ago`;
+        } else if (hoursAgo < 24 && msgTime.isSame(now, 'day')) {
+            formattedTime = `${hoursAgo} hours ago`;
+        } else if (weeksAgo < 1 && msgTime.isSame(now, 'week')) {
+            formattedTime = msgTime.format('dddd'); // Day of the week
+        } else if (daysAgo < 31 && msgTime.isSame(now, 'month')) {
+            formattedTime = msgTime.format('D MMM');
+        } else if (yearsAgo < 1 && msgTime.isSame(now, 'year')) {
+            formattedTime = msgTime.format('D MMM');
         } else {
-            formattedTime = msgTime.format('D MMM YYYY');
+            formattedTime = msgTime.format('DD/MM/YYYY');
         }
-
         return formattedTime;
     }
+    
     // console.log(contacts)
 
     return (
