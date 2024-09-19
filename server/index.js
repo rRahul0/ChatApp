@@ -9,6 +9,8 @@ import authRoute from './routes/authRoute.js';
 import contactsRoute from './routes/contactsRoute.js';
 import messagesRoute from './routes/messagesRoute.js';
 import channelsRoute from './routes/channelRoute.js';
+import profileRoute from './routes/profileRoute.js';
+
 import { dbConnect } from './config/DbConfig.js';
 import { cloudinaryConnect } from './config/Cloudinary.js';
 
@@ -35,7 +37,8 @@ cloudinaryConnect();
 app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/contacts', contactsRoute);
 app.use('/api/v1/messages', messagesRoute);
-app.use('/api/v1/channels', channelsRoute)
+app.use('/api/v1/channels', channelsRoute);
+app.use('/api/v1/profile', profileRoute);
 
 app.get('/', (req, res) => {
     res.send(`This is Backend of Rahul's Chat App`);

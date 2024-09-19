@@ -8,9 +8,8 @@ import toast from "react-hot-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import moment from "moment";
 import EditableUserProfile from "./EditProfile";
-
+import { updateName } from "../../services/operations/profileApi";
 
 const ProfileInfo = () => {
     const { user } = useSelector(state => state.profile);
@@ -22,6 +21,9 @@ const ProfileInfo = () => {
     const [openLogoutModal, setOpenLogoutModal] = useState(false);
     const [openEditProfileModal, setOpenEditProfileModal] = useState(false);
     const [openProfileModal, setOpenProfileModal] = useState(false);
+
+
+
     const logOut = () => {
         dispatch(logout(navigate));
         setOpenLogoutModal(false);
@@ -31,9 +33,9 @@ const ProfileInfo = () => {
         <>
             <div className="absolutte bottom-0 h-16 flex items-center justify-between px-10 w-full bg-[#2a2b33]">
                 <div className="flex gap-3 items-center justify-center ">
-                    <div 
-                    onClick={setOpenProfileModal}
-                    className="w-12 h-12 relative text-white cursor-pointer rounded-full">
+                    <div
+                        onClick={setOpenProfileModal}
+                        className="w-12 h-12 relative text-white cursor-pointer rounded-full">
                         <img
                             src={user?.image?.url}
                             alt="mcnbhdf"
@@ -106,7 +108,7 @@ const ProfileInfo = () => {
                         {/* <DialogDescription>
                         </DialogDescription> */}
                     </DialogHeader>
-                    <div className="max-w-sm shadow-lg rounded-lg overflow-hidden mt-5 flex flex-col gap-5">
+                    {/* <div className="max-w-sm shadow-lg rounded-lg overflow-hidden mt-5 flex flex-col gap-5">
                         <div className="flex justify-center">
                             <img className="h-28 w-28 object-cover rounded-full " src={user?.image?.url} alt="Profile" />
                         </div>
@@ -128,6 +130,10 @@ const ProfileInfo = () => {
                                 </p>
                             </div>
                         </div>
+                    </div> */}
+                    <div className="flex justify-center w-full sm:w-80 ">
+
+                        <EditableUserProfile edit={false} user={user} onClose={setOpenProfileModal} />
                     </div>
 
                 </DialogContent>
@@ -143,9 +149,8 @@ const ProfileInfo = () => {
                         {/* <DialogDescription>
                         </DialogDescription> */}
                     </DialogHeader>
-                    {/* <EditableUserProfile/> */}
-                    <div className="h-32 flex items-center justify-center text-3xl">
-                        Coming Soon ...
+                    <div className="flex justify-center w-full  ">
+                        <EditableUserProfile edit={true} user={user} onSave={updateName} onClose={setOpenEditProfileModal} />
                     </div>
 
                 </DialogContent>

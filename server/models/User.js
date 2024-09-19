@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   lastName: {
     type: String,
     required: [true, "Last Name is required"],
-  },
+  }, 
   image: {
     url: {
       type: String,

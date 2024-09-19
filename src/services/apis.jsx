@@ -9,6 +9,11 @@ export const AuthEndpoints = {
     RESETPASSWORD_API: BASE_URL + "/auth/reset-password",
 }
 
+export const ProfileEndpoints = {
+    UPDATE_PROFILE: BASE_URL + "/profile/update-profile",
+    UPDATE_NAME: BASE_URL + "/profile/update-name",
+}
+
 export const ContactEndpoints = {
     SEARCH_CONTACTS: BASE_URL + "/contacts/search-contacts",
     GET_CONTACTS_DM: BASE_URL + "/contacts/get-contacts-dm",

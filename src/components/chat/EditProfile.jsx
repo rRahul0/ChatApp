@@ -1,115 +1,167 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import moment from 'moment';
+import { updateProfile } from '../../services/operations/profileApi';
+import { setUser } from '../../slices/profileSlice'
 
-const EditableUserProfile = ({ user, onSave }) => {
-    const [isEditing, setIsEditing] = useState(false);
+const EditableUserProfile = ({ edit, user, onSave, onClose }) => {
+    const User = useSelector(state => state.profile.user);
+    const dispatch = useDispatch();
+    const [isEditing, setIsEditing] = useState(edit);
     const [formData, setFormData] = useState({ ...user });
-
+    const fileRef = useRef(null)
+    const [imageFile, setImageFile] = useState(null)
+    const [previewSource, setPreviewSource] = useState(null)
+    const [loading, setLoading] = useState(false)
+    // console.log(edit, user)
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { firstName, lastName, value } = e.target;
         setFormData({
             ...formData,
-            [name]: value,
+            [e.target.name]: value,
         });
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        setLoading(true)
         setIsEditing(false);
-        onSave(formData);
+        onClose(false);
+        const data = await onSave(formData);
+        const updatedUser = {
+            ...User,
+            firstName: data.firstName,
+            lastName: data.lastName,
+        };
+        dispatch(setUser(updatedUser));
+        setLoading(false)
     };
+    const handleFileChange = (e) => {
+        const file = e.target.files[0]
+        if (file) {
+            setImageFile(file)
+            previewFile(file)
+        }
+    }
+    const previewFile = (file) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onloadend = () => {
+            setPreviewSource(reader.result)
+        }
+    }
+    const handleClick = () => {
+        fileRef.current.click()
+    }
+    const handleUpload = async () => {
+        setLoading(true)
+        const data = new FormData()
+        data.append('image', imageFile)
+        const res = await updateProfile(data)
+        const updatedUser = {
+            ...User,
+            image: {
+                url: res.url,
+                public_id: res.public_id,
+            },
+        };
+        dispatch(setUser(updatedUser));
+        setLoading(false)
+    }
 
+    useEffect(() => {
+        if (imageFile) {
+            previewFile(imageFile)
+        }
+    }, [imageFile])
+
+    const timestampToDate = (timestamp) => {
+        return moment(timestamp).format("DD-MM-YYYY");
+    }
     return (
-        <div className="max-w-sm shadow-lg rounded-lg overflow-hidden">
-            <div className="relative">
-                <img className="w-full h-48 object-cover" src={formData.profileImage} alt="Profile" />
-                {isEditing && (
-                    <input 
-                        type="text" 
-                        name="profileImage"
-                        value={formData.profileImage} 
-                        onChange={handleChange}
-                        className="absolute top-0 left-0 w-full h-48 bg-black bg-opacity-50 text-white p-2"
-                        placeholder="Enter new profile image URL"
-                    />
-                )}
-            </div>
-            <div className="p-6">
-                {isEditing ? (
-                    <>
-                        <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            className="w-full p-2 mb-2 border rounded"
-                            placeholder="Enter name"
-                        />
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="w-full p-2 mb-2 border rounded"
-                            placeholder="Enter email"
-                        />
-                        <input
-                            type="text"
-                            name="joinedDate"
-                            value={formData.joinedDate}
-                            onChange={handleChange}
-                            className="w-full p-2 mb-2 border rounded"
-                            placeholder="Enter joined date"
-                        />
-                        <input
-                            type="number"
-                            name="friendsCount"
-                            value={formData.friendsCount}
-                            onChange={handleChange}
-                            className="w-full p-2 mb-2 border rounded"
-                            placeholder="Enter number of friends"
-                        />
-                        <input
-                            type="text"
-                            name="group"
-                            value={formData.group}
-                            onChange={handleChange}
-                            className="w-full p-2 mb-2 border rounded"
-                            placeholder="Enter group"
-                        />
-                    </>
-                ) : (
-                    <>
-                        <h2 className="text-2xl font-semibold text-gray-800">{formData.name}</h2>
-                        <p className="text-gray-600">{formData.email}</p>
-                        <div className="mt-4">
-                            <p className="text-gray-600">
-                                <span className="font-bold">Joined:</span> {formData.joinedDate}
-                            </p>
-                            <p className="text-gray-600">
-                                <span className="font-bold">Friends:</span> {formData.friendsCount}
-                            </p>
-                            <p className="text-gray-600">
-                                <span className="font-bold">Group:</span> {formData.group}
-                            </p>
-                        </div>
-                    </>
-                )}
+        <div className="w-full  overflow-hidden ">
+            <div className="flex justify-center items-center gap-5 flex-col">
+                {!isEditing ?
+                    (<img className="w-full h-40 rounded-full bg-black bg-opacity-50 p-2 sm:w-40 object-cover" src={formData.image.url} alt="Profile" />) : (
+                        <>
+                            <img
+                                type="file"
+                                name="profileImage"
+                                src={previewSource ? previewSource : formData.image.url}
+                                className="  w-40 h-40 bg-black bg-opacity-50 text-white p-2 rounded-full"
+                                placeholder="Enter new profile image URL"
+                            />
 
-                <div className="mt-4 flex justify-between">
-                    <button
-                        onClick={() => setIsEditing(!isEditing)}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                    >
-                        {isEditing ? 'Cancel' : 'Edit'}
-                    </button>
-                    {isEditing && (
-                        <button
-                            onClick={handleSave}
-                            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                        >
-                            Save
-                        </button>
+                            <input type="file" ref={fileRef} onChange={handleFileChange} className='hidden' accept='image/png, , image/jpeg, image/jpg, image/gif' />
+
+                            <div className='flex gap-20'>
+                                <button
+                                    onClick={handleClick}
+                                    className='bg-[#3a363f] py-2 px-4 rounded'
+                                    disabled={loading}>
+                                    Select
+                                </button>
+                                <button
+                                    onClick={handleUpload}
+                                    className='bg-[#6420cb] py-2 px-4 rounded'
+                                    disabled={loading}>
+                                    {loading ? 'Uploading...' : 'Upload'}
+                                </button>
+                            </div>
+                        </>
+                    )}
+            </div>
+            <div className="flex  mt-5 ">
+                <div>
+                    {isEditing ? (
+                        <div className='flex gap-5 w-full '>
+                            <input
+                                type="text"
+                                name="firstName"
+                                value={formData.firstName}
+                                onChange={handleChange}
+                                className="w-2/5 p-2 mb-2 h-full rounded bg-black/30"
+                                placeholder="Enter first name"
+                            />
+                            <input
+                                type="text"
+                                name="lastName"
+                                value={formData.lastName}
+                                onChange={handleChange}
+                                className="w-2/5 p-2 mb-2 rounded bg-black/30"
+                                placeholder="Enter last name"
+                            />
+                            <button
+                                onClick={handleSave}
+                                disabled={loading}
+                                className={`bg-green-500 text-white  h-10 px-2 rounded hover:bg-green-600 ${!isEditing ? 'hidden' : ''} `}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    ) : (
+                        <div>
+                            <h2 className="text-2xl font-semibold text-gray-800">{formData.name}</h2>
+                            <p className="text-gray-600">{formData.email}</p>
+                            <div className="mt-4">
+                                <p className="text-gray-600">
+                                    <span className="font-bold">Joined:</span> {timestampToDate(formData.updatedAt)}
+                                </p>
+                                <p className="text-gray-600">
+                                    <span className="font-bold">Friends:</span> {formData.chats.length}
+                                </p>
+                                <p className="text-gray-600">
+                                    <span className="font-bold">Group:</span> {formData.channels.length}
+                                </p>
+                            </div>
+                        </div>
                     )}
                 </div>
+                {/* <button
+                    onClick={handleSave}
+                    className={`bg-green-500 text-white px-5 text-md rounded hover:bg-green-600 ${!isEditing ? 'hidden' : ''} `}
+                >
+                    Save
+                </button> */}
             </div>
         </div>
     );

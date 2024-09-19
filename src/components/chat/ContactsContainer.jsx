@@ -8,7 +8,7 @@ import { AllContactsDm, AllContacts } from "../../services/operations/contactApi
 import CreateChannel from "./CreateChannel";
 import { getChannels } from "../../services/operations/channelApi";
 import logo from "../../../public/logo.png"
-
+import '../scroll.css'
 
 const ContactsContainer = () => {
     const { dmContacts, channels } = useSelector((state) => state.chat);
@@ -39,7 +39,7 @@ const ContactsContainer = () => {
     }, []); 
 
     return (
-        <div className="relative md:w-[35vw] lg:w-[30vw] xl:w-[20vw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full flex flex-col justify-between ">
+        <div className="relative md:w-[35vw] lg:w-[30vw] xl:w-[22vw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full flex flex-col justify-between ">
 
             <div>
 
@@ -52,7 +52,7 @@ const ContactsContainer = () => {
                         <Title title="Direct Messages" />
                         <NewDm />
                     </div>
-                    <div className="max-h-[38vh] overflow-y-auto scrollbar-hidden">
+                    <div className="max-h-[38vh] overflow-y-auto ">
                         <ContactList contacts={dmContacts} isChannel={false} />
                     </div>
                 </div>
@@ -61,7 +61,7 @@ const ContactsContainer = () => {
                         <Title title="Channels" />
                         <CreateChannel />
                     </div>
-                    <div className="max-h-[38vh] overflow-y-auto scrollbar-hidden">
+                    <div className="max-h-[38vh] overflow-y-auto ">
                         <ContactList contacts={channels} isChannel={true} />
                     </div>
                 </div>
