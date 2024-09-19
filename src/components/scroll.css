@@ -32,7 +32,8 @@ details > summary::-webkit-details-marker {
   display: none;
 }
 
-
 @keyframes l27 {
-  100% {transform: rotate(1turn)}
+  100% {
+    transform: rotate(1turn);
+  }
 }
