@@ -8,11 +8,7 @@ const userSchema = new mongoose.Schema({
   lastName: {
     type: String,
     required: [true, "Last Name is required"],
-<<<<<<< HEAD
   }, 
-=======
-  },
->>>>>>> 28cf77a8b91c142c3e297bed967859af5f8fb61e
   image: {
     url: {
       type: String,
