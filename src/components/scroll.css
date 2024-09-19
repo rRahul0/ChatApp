@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 * {
   scrollbar-width: auto;
   scrollbar-color: #afb2bf;
@@ -36,3 +37,15 @@ details > summary::-webkit-details-marker {
 @keyframes l27 {
   100% {transform: rotate(1turn)}
 }
+=======
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .scrollbar-hidden {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+>>>>>>> 28cf77a8b91c142c3e297bed967859af5f8fb61e
