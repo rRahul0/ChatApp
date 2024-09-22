@@ -106,6 +106,24 @@ export const signUp = async (req, res, next) => {
   }
 };
 
+const generateAccessTokenAndRefreshToken = (user) => {
+  const payload = {
+    id: user._id,
+    email: user.email,
+  };
+  const accessToken = jwt.sign(
+    payload,
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+  const refreshToken = jwt.sign(
+    payload,
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "31d" }
+  );
+  return { token: accessToken, refreshToken };
+}
+
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -126,30 +144,37 @@ export const login = async (req, res) => {
 
     //password matching
     if (await bcrypt.compare(password, isExistUser.password)) {
-      const payload = {
-        id: isExistUser._id,
-        email: isExistUser.email,
-      };
-      const token = jwt.sign(payload, process.env.JWT_SECRET, {
-        expiresIn: "7d",
-      });
 
-      isExistUser.token = token;
-      isExistUser.password = undefined;
+      // const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      //   expiresIn: "7d",
+      // });
 
-      const options = {
-        expiresIn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-      };
 
-      return res.cookie("token", token, options).status(200).json({
-        success: true,
-        token,
-        user: isExistUser,
-        message: "Loggedin sucessfully",
-      });
+      try {
+        const { token, refreshToken } = generateAccessTokenAndRefreshToken(isExistUser);
+
+        isExistUser.refreshToken = refreshToken;
+        await isExistUser.save();
+
+        isExistUser.token = token;
+        isExistUser.password = undefined;
+
+        const options = {
+          expiresIn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
+        };
+
+        return res.cookie("token", token, options).status(200).json({
+          success: true,
+          token,
+          user: isExistUser,
+          message: "Loggedin sucessfully",
+        });
+      } catch (error) {
+        console.log(error);
+      }
     } else {
       return res.status(400).json({
         success: false,
@@ -160,6 +185,79 @@ export const login = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Login failure, please try again",
+      hint: error.message,
+    });
+  }
+};
+
+export const reLogin = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) {
+      return res.status(404).json({
+        success: false,
+        message: "userId not found",
+      });
+    }
+
+    let existingUser = await User.findById(userId);
+    if (!existingUser.refreshToken) {
+      throw new Error("Refresh token not found");
+    }
+    try {
+      const decode = jwt.verify(existingUser.refreshToken, process.env.REFRESH_TOKEN_SECRET)
+      req.user = decode
+    } catch (error) {
+      return res.status(401).json({ sucess: false, message: error.message, })
+    }
+    const { token, refreshToken } = generateAccessTokenAndRefreshToken(existingUser);
+    existingUser.refreshToken = refreshToken;
+    await existingUser.save();
+    return res.status(200).json({
+      success: true,
+      message: "User found",
+      token,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "User not found",
+      hint: error.message,
+    });
+  }
+}
+
+export const logout = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    if (!userId) {
+      return res.status(404).json({
+        success: false,
+        message: "userId not found",
+      });
+    }
+    let existing = await User.findById(userId); //req.user.id
+    if (!existing) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    existing.refreshToken = null;
+    await existing.save();
+    return res.cookie("token", "", {
+      expires: new Date(Date.now()),
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    }).status(200).json({
+      success: true,
+      message: "Logout successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Logout failed",
       hint: error.message,
     });
   }
@@ -210,43 +308,43 @@ export const resetPasswordToken = async (req, res) => {
 export const resetPassword = async (req, res) => {
 
   try {
-      const { password, confirmPassword, token } = req.body;
-      if (confirmPassword !== password) {
-          return res.json({
-              success: false,
-              message: "Password and Confirm Password Does not Match",
-          });
-      }
-      const userDetails = await User.findOne({ token: token });
-      if (!userDetails) {
-          return res.json({
-              success: false,
-              message: "Token is Invalid",
-          });
-      }
-      if (!(userDetails.resetPasswordExpires > Date.now())) {
-          return res.status(403).json({
-              success: false,
-              message: `Token is Expired, Please Regenerate Your Token`,
-          });
-      }
-      const encryptedPassword = await bcrypt.hash(password, 10);
-      
-      await User.findOneAndUpdate(
-          { token: token },
-          { password: encryptedPassword },
-          { new: true }
-      );
-      res.status(200).json({
-          success: true,
-          message: `Password Reset Successful`,
+    const { password, confirmPassword, token } = req.body;
+    if (confirmPassword !== password) {
+      return res.json({
+        success: false,
+        message: "Password and Confirm Password Does not Match",
       });
+    }
+    const userDetails = await User.findOne({ token: token });
+    if (!userDetails) {
+      return res.json({
+        success: false,
+        message: "Token is Invalid",
+      });
+    }
+    if (!(userDetails.resetPasswordExpires > Date.now())) {
+      return res.status(403).json({
+        success: false,
+        message: `Token is Expired, Please Regenerate Your Token`,
+      });
+    }
+    const encryptedPassword = await bcrypt.hash(password, 10);
+
+    await User.findOneAndUpdate(
+      { token: token },
+      { password: encryptedPassword },
+      { new: true }
+    );
+    res.status(200).json({
+      success: true,
+      message: `Password Reset Successful`,
+    });
   }
   catch (error) {
-      return res.status(500).json({
-          error: error.message,
-          success: false,
-          message: `Some Error in Updating`,
-      })
+    return res.status(500).json({
+      error: error.message,
+      success: false,
+      message: `Some Error in Updating`,
+    })
   }
 }

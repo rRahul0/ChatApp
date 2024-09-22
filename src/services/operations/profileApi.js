@@ -1,6 +1,5 @@
 import { apiConnector } from "../apiConnector";
 import { ProfileEndpoints } from "../apis";
-
 const { UPDATE_PROFILE, UPDATE_NAME } = ProfileEndpoints;
 
 export const updateProfile = async (formData, token) => {
@@ -34,10 +33,11 @@ export const updateName = async (formData, token) => {
                 'Authorization': `Bearer ${token}`,
             }
         )
-        const { data } = response;
         console.log("UPDATE NAME API RESPONSE............", response);
+        const { data } = response;
+        // console.log("UPDATE NAME API RESPONSE............", response);
         if (!data.success)
-            throw new Error(data.message)
+            throw new Error("Error in updating name")
         return data.user;
     }
     catch (error) {

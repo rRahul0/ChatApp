@@ -6,6 +6,7 @@ import { setUser } from '../../slices/profileSlice'
 
 const EditableUserProfile = ({ edit, user, onSave, onClose }) => {
     const User = useSelector(state => state.profile.user);
+    const {token} = useSelector(state => state.auth);
     const dispatch = useDispatch();
     const [isEditing, setIsEditing] = useState(edit);
     const [formData, setFormData] = useState({ ...user });
@@ -26,7 +27,7 @@ const EditableUserProfile = ({ edit, user, onSave, onClose }) => {
         setLoading(true)
         setIsEditing(false);
         onClose(false);
-        const data = await onSave(formData);
+        const data = await onSave(formData, token);
         const updatedUser = {
             ...User,
             firstName: data.firstName,
@@ -56,7 +57,7 @@ const EditableUserProfile = ({ edit, user, onSave, onClose }) => {
         setLoading(true)
         const data = new FormData()
         data.append('image', imageFile)
-        const res = await updateProfile(data)
+        const res = await updateProfile(data, token)
         const updatedUser = {
             ...User,
             image: {
@@ -64,6 +65,7 @@ const EditableUserProfile = ({ edit, user, onSave, onClose }) => {
                 public_id: res.public_id,
             },
         };
+        localStorage.setItem('user', JSON.stringify(updatedUser))
         dispatch(setUser(updatedUser));
         setLoading(false)
     }

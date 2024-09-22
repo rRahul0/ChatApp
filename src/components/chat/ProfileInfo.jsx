@@ -13,9 +13,10 @@ import { updateName } from "../../services/operations/profileApi";
 
 const ProfileInfo = () => {
     const { user } = useSelector(state => state.profile);
-    const { dmContacts, channels } = useSelector(state => state.chat);
-    const friendsCount = dmContacts.length;
-    const group = channels.length;
+    const { token } = useSelector(state => state.auth);
+    // const { dmContacts, channels } = useSelector(state => state.chat);
+    // const friendsCount = dmContacts.length;
+    // const group = channels.length;
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [openLogoutModal, setOpenLogoutModal] = useState(false);
@@ -25,7 +26,7 @@ const ProfileInfo = () => {
 
 
     const logOut = () => {
-        dispatch(logout(navigate));
+        dispatch(logout(navigate, token));
         setOpenLogoutModal(false);
         toast.success("Logged out");
     }

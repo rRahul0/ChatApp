@@ -85,7 +85,7 @@ export function login(email, password, navigate) {
             toast.success("Login Successful")
             dispatch(setToken(response.data.token))
             dispatch(setUser(response.data.user))
-            localStorage.setItem("data", JSON.stringify({ token: response.data.token, expire: Date.now() + 1000 * 60 * 60 * 24 * 7 }))
+            localStorage.setItem("token", JSON.stringify(response.data.token))
             localStorage.setItem("user", JSON.stringify(response.data.user))
 
             navigate("/")
@@ -152,12 +152,23 @@ export function resetPassword(password, confirmPassword, token, navigate) {
     }
 }
 
-export function logout(navigate) {
+export function logout(navigate, token) {
     return async (dispatch) => {
-        localStorage.removeItem("data")
+        try{
+        //clear cookies
+        const response = await apiConnector("GET", AuthEndpoints.LOGOUT_API, null, { 'Authorization': `Bearer ${token}` }) 
+        console.log("LOGOUT API RESPONSE............", response)
+        if (!response.data.success) {
+            throw new Error(response.data.message)
+        }
+        localStorage.removeItem("token")
         localStorage.removeItem("user")
         dispatch(setToken(null))
         dispatch(setUser(null))
         navigate("/login")
+        } catch (error) {
+            console.log("LOGOUT API ERROR............", error)
+            toast.error("Failed To Logout")
+        }
     }
 }

@@ -7,6 +7,8 @@ export const AuthEndpoints = {
     SENDOTP_API: BASE_URL + "/auth/sendotp",
     RESETPASSTOKEN_API: BASE_URL + "/auth/reset-password-token",
     RESETPASSWORD_API: BASE_URL + "/auth/reset-password",
+    REFRESHTOKEN_API: BASE_URL + "/auth/refresh",
+    LOGOUT_API: BASE_URL + "/auth/logout",
 }
 
 export const ProfileEndpoints = {

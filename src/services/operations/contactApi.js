@@ -36,7 +36,8 @@ export async function AllContactsDm(token){
             {},
             { Authorization: `Bearer ${token}` }
         );
-        // console.log(response)
+        // console.log(  response)
+        console.log("GET CONTACTS DM API RESPONSE............", response);
         if (!response.data.success) {
             throw new Error(response.data.message);
         }

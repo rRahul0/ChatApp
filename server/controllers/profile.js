@@ -10,7 +10,8 @@ export const changeProfileImage = async (req, res) => {
         const userId = req.user.id;
         const user = await User.findById(userId).select("image");
         if (user.image.public_id) {
-            await cloudinary.uploader.destroy(user.image.public_id);
+            const options = { folder: process.env.FOLDER_NAME, resource_type : "raw"};
+            cloudinary.uploader.destroy(user.image.public_id, options);
         }
         const result = await uploadFileToCloudinary(image.tempFilePath, process.env.FOLDER_NAME,);
         user.image.url = result.secure_url;

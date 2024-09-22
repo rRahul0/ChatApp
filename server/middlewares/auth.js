@@ -5,7 +5,7 @@ dotenv.config()
 
 export const auth = async (req, res, next) => {
     try {
-        const token = req.body.token || req.cookies.token || req.header('Authorization').replace("Bearer ", "");
+        const token = req.header('Authorization').replace("Bearer ", "") || req.cookies.token || req.body.token;
         if (!token)
             return res.status(400).json({ sucess: false, message: "token not found" })
 
@@ -16,7 +16,7 @@ export const auth = async (req, res, next) => {
             return res.status(401).json({ sucess: false, message: error.message, })
         }
         next()
-
+ 
     } catch (error) {
         console.log(error)
         return res.status(500).json({

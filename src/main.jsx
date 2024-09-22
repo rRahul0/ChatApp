@@ -13,7 +13,7 @@ import {SocketProvider} from './context/SocketContext.jsx'
 // const store = configureStore({
 //   reducer: rootReducer,
 // })
-const store = configureStore({
+export const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
